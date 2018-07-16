@@ -2,7 +2,7 @@ from random import randint
 import socket
 
 sock_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_client.connect(('', 9099))
+sock_client.connect(('localhost', 9099))
 sock_client.send(b't')
 
 while True:

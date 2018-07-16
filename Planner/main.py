@@ -13,17 +13,17 @@ robo_dict = ['f','t']
 # end config
 
 sock_rob_ad = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_rob_ad.connect(('', port_rob_ad)) # connect to RCA
+sock_rob_ad.connect(('localhost', port_rob_ad)) # connect to RCA
 sock_rob_ad.send(who.encode())
 
 sock_3d_scene = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_3d_scene.connect(('', port_3d_scene)) # connect to 3d_scene
+sock_3d_scene.connect(('localhost', port_3d_scene)) # connect to 3d_scene
 sock_3d_scene.send(b'planner')
 
 sock_serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_serv.bind(('',port_planner))
+sock_serv.bind(('localhost',port_planner))
 sock_serv.listen(1)
-conn, addr = sock_serv.accept()
+conn, address = sock_serv.accept()
 
 def get_scene():
     sock_3d_scene.send(b'get_scene')
