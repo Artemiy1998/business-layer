@@ -14,15 +14,19 @@ socketPlanner.connect(addresPlanner)
 
 def dataConvertJsonToStrByte(dataJson):
     dictName = {'fanuc': 'f', 'telega':'t'}
-    dataStr = str(dictName.get(dataJson.get('name')))+':'+dataJson.get('command')
-    dataStrByte = dataStr.encode()
-    return dataStrByte
+    if dictName.get(dataJson.get('name')) != None:
+        dataStr = str(dictName.get(dataJson.get('name')))+':'+dataJson.get('command')
+        dataStrByte = dataStr.encode()
+        return dataStrByte
+    else:
+        return False
 
 
 def sendPlanner(dataJson,sockUnity):
     try:
         dataByteSend = dataConvertJsonToStrByte(dataJson)
-        socketPlanner.send(dataByteSend)
+        if dataByteSend:
+            socketPlanner.send(dataByteSend)
     except ConnectionRefusedError:
         sockUnity.send(b'Error, Connection Refused wait 3 minutes')
         for i in range(3):
