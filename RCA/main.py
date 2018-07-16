@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import socket
 import threading
 from collections import deque
@@ -6,7 +7,7 @@ from collections import deque
 from RCA.utils import ClientForScene
 
 # config
-host = ''
+host = 'localhost'
 size = 1024
 port_rca = 9099
 port_3d_scene = 9093

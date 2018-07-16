@@ -35,7 +35,7 @@ def except_func(def_send, socket_component, socket_address,socket_another_compon
 
 
 def data_convert_json_to_str_byte():
-    data_str_byte = str(dict_Name.get(data_Json.get('name')))+':'+data_Json.get('command').encode()
+    data_str_byte = (str(dict_Name.get(data_Json.get('name')))+':'+data_Json.get('command')).encode()
     return data_str_byte
 
 
