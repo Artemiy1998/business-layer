@@ -22,19 +22,20 @@ port_3d_scene = 9093
 def listen_to_robot(client, who, client_for_scene, queue_messages):
 
     while True:
+        if len(queue_messages) != 0:
+            left_message = queue_messages[0]
+            if left_message[0] == who:
+                cmd = queue_messages.popleft()[1]
+                client.send(cmd.encode())
+                if cmd == 'e':
+                    sys.exit(0)
 
-        if len(list(queue_messages)) != 0 and list(queue_messages)[0][0] == who:
-            cmd = queue_messages.popleft()[1]
-            client.send(cmd.encode())
-            if cmd == 'e':
-                sys.exit(0)
+                data = client.recv(size)
 
-            data = client.recv(size)
-
-            if data:
-                client_for_scene.send(data)
-            else:
-                raise socket.error('Client disconnected')
+                if data:
+                    client_for_scene.send(data)
+                else:
+                    raise socket.error('Client disconnected')
 
 
 
