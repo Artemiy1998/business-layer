@@ -3,7 +3,7 @@ import socket
 import threading
 from collections import deque
 
-from .utils import ClientForScene
+from RCA.utils import ClientForScene
 
 # config
 host = ''
