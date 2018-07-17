@@ -54,18 +54,19 @@ def except_func(def_send, socket_component,
         time.sleep(60)
         try:
             socket_component.connect(socket_address)
-            logging.info(socket_address + 'Reconnect')
+            logging.info(socket_address + '  Reconnect')
             def_send()
         except ConnectionRefusedError:
             pass
-    client_Socket_Conn.send()
-    logging.info('send Client message error')
+    client_Socket_Conn.send(message_error)
+    logging.info('send Client ' + message_error)
     socket_another_component.send(b'e')
 
     socket_component.close()
     socket_another_component.close()
     client_Socket_Conn.close()
     socket_client.close()
+    logging.info('3d Scene, Client Adapter, Client close')
     exit()
 
 
@@ -83,7 +84,7 @@ def send_planner():
     try:
         data_byte_send = data_convert_json_to_str_byte()
         socket_Planner.send(data_byte_send)
-        logging.info('send Planner' + data_byte_send)
+        logging.info('send Planner ' + data_byte_send)
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
@@ -103,13 +104,13 @@ def send_3d_scene():
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
-        logging.info('send Client message error')
+        logging.info('send Client:Refused, wait 3 minutes' )
         except_func(send_3d_scene(), socket_3dScene,
                     address_3dScene, socket_Planner)
     except ConnectionResetError:
         logging.error('ConnectionResetError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
-        logging.info('send Client message error')
+        logging.info('send Client: Reset, wait 3 min')
         except_func(send_3d_scene(), socket_3dScene,
                     address_3dScene, socket_Planner)
 
@@ -117,10 +118,10 @@ def send_3d_scene():
 while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
     while True:
-        logging.info('Connect' + client_Socket_Address)
+        logging.info('Connect ' + client_Socket_Address)
 
-        data_Json = json.loads(client_Socket_Conn.recv(1024).decode("utf-8"))
-        logging.info('From' + client_Socket_Address + 'recv' + data_Json)
+        data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
+        logging.info('From ' + client_Socket_Address + ' recv' + data_Json)
         if data_Json.get('name') in dict_Name:
             if data_Json.get('flag') == 0:
                 send_planner()
