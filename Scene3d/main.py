@@ -17,11 +17,11 @@ robo_dict = {'f': 'none', 't': 'none'}
 # config end
 
 sock_main = socket.socket()
-sock_main.bind(('',9093))
+sock_main.bind(('localhost',9093))
 sock_main.listen(3)
 
 while True:
-    client, adress = sock_main.accept()
+    client, address = sock_main.accept()
     who_is_it = client.recv(1024).decode()
     if who_is_it == 'planner':
         planer_thread = Thread(target=planner_func, args=(client, json_data))
