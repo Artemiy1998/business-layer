@@ -1,14 +1,28 @@
 import os
-
+import logging
 
 def planner_func(client, json_data):
+    """
+    @brief This Function send planer current state system
+    :param client: socket client
+    :param json_data: data in json format
+    :return:
+    """
     while True:
         data = json_data.get()
-        message = client.recv(1024).encode()
-        if message == "get_scene":
-            client.send(data.encode())
-        if json_data.exit:
-            os._exit(0)
-        # TODO: try except construction then client end connection
-
+        try:
+            message = client.recv(1024).encode()
+            logging.info('def_planer recv ' + message)
+            if message == "get_scene":
+                client.send(data.encode())
+                logging.info('planner send')
+            if json_data.exit:
+                logging.info('exit')
+                os._exit(0)
+        except ConnectionRefusedError:
+            logging.error('Planner disconnected. ConnectionRefusedError')
+        except ConnectionAbortedError:
+            logging.error('Planner disconnected. ConnectionAbortedError')
+        except ConnectionResetError:
+            logging.error('Planner disconnected. ConnectionResetError')
     client.close()
