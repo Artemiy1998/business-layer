@@ -11,7 +11,7 @@ def rca_func(client, json_data):
     while True:
         try:
             data = client.recv(1024).decode()
-            logging.info('def_rca recv' + data)
+            logging.info('def_rca recv ' + data)
 
             json_data.set(data)
             if json_data.exit:

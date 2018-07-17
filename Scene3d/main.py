@@ -28,24 +28,24 @@ logging.basicConfig(format = u' %(levelname)-8s [%(asctime)s] %(message)s', leve
 
 while True:
     client, address = sock_main.accept()
-    logging.info('Connect' + address)
+    logging.info('Connect ' + address)
     who_is_it = client.recv(1024).decode()
 
     if who_is_it == 'planner':
         planer_thread = Thread(target=planner_func, args=(client, json_data))
-        logging.info(who_is_it + 'connect')
+        logging.info(who_is_it + ' connect')
         planer_thread.start()
-        logging.info('Thread for' + who_is_it + 'start')
+        logging.info('Thread for ' + who_is_it + ' start')
     elif who_is_it == 'RCA':
         rca_thread = Thread(target=rca_func, args=(client, json_data))
-        logging.info(who_is_it + 'connect')
+        logging.info(who_is_it + ' connect')
         rca_thread.start()
-        logging.info('Thread for' + who_is_it + 'start')
+        logging.info('Thread for ' + who_is_it + ' start')
     elif who_is_it == 'ClAd':
         client_adapter_thread = Thread(target=client_adapter_func, args=(client, json_data))
-        logging.info(who_is_it + 'connect')
+        logging.info(who_is_it + ' connect')
         client_adapter_thread.start()
-        logging.info('Thread for' + who_is_it + 'start')
+        logging.info('Thread for ' + who_is_it + ' start')
     else:
         continue
 

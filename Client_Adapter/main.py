@@ -121,7 +121,7 @@ while True:
         logging.info('Connect ' + client_Socket_Address)
 
         data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
-        logging.info('From ' + client_Socket_Address + ' recv' + data_Json)
+        logging.info('From ' + client_Socket_Address + '  recv  ' + data_Json)
         if data_Json.get('name') in dict_Name:
             if data_Json.get('flag') == 0:
                 send_planner()

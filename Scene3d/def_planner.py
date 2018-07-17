@@ -12,7 +12,7 @@ def planner_func(client, json_data):
         data = json_data.get()
         try:
             message = client.recv(1024).encode()
-            logging.info('def_planer recv' + message)
+            logging.info('def_planer recv ' + message)
             if message == "get_scene":
                 client.send(data.encode())
                 logging.info('planner send')

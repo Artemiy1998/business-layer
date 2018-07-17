@@ -11,7 +11,7 @@ def client_adapter_func(client, json_data):
     while True:
         try:
             message = client.recv(1024).decode()
-            logging.info('def_client_adapter' + message)
+            logging.info('def_client_adapter ' + message)
             if message == '1':
                 data = json_data.get()
                 client.send(data.decode())
