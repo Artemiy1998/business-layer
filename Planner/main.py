@@ -12,7 +12,10 @@ import configparser
 import logging
 
 # logging
-logging.basicConfig(format = u' %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG, filename = 'Planner.log')
+logging.basicConfig(
+    format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
+    level=logging.DEBUG,
+    filename='Planner.log')
 
 # config
 config_file = os.path.join(
@@ -39,7 +42,6 @@ try:
     sock_rob_ad.send(who.encode())
 except ConnectionRefusedError:
     logging.error('RCA refused connection')
-
 
 
 sock_3d_scene = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -84,4 +86,3 @@ while True:
         sock_rob_ad.send(data)
     except ConnectionAbortedError:
         logging.error('RCA aborted connection')
-

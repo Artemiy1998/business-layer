@@ -15,7 +15,10 @@ import configparser
 import logging
 
 # logging
-logging.basicConfig(format = u' %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG, filename = 'RCA.log')
+logging.basicConfig(
+    format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
+    level=logging.DEBUG,
+    filename='RCA.log')
 
 logging.info("Program started")
 
@@ -90,7 +93,6 @@ def listen_to_planner(client, queue_messages):
 
         else:
             logging.error('Planner disconnected')
-
 
 
 queue_messages = deque()
