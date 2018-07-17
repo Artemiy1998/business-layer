@@ -1,22 +1,31 @@
+""" @author Urazov Dilshod
+Documentation for Robot Control Adapter module.
+
+@brief RCA module performs the communication of Business Layer with Computer Unit.
+
+"""
+
 import os
 import sys
 import socket
 import threading
 from collections import deque
-
 from RCA.utils import ClientForScene
+import configparser
 
 # config
-host = 'localhost'
-size = 1024
-port_rca = 9099
-port_3d_scene = 9093
-# config end
+config_file = os.path.join(
+    os.path.dirname(
+        os.path.dirname(__file__)),
+    'configBL.ini')
+config = configparser.ConfigParser()
+config.read(config_file)
 
-#TODO 1. Фиксировать изменения сообщения роботам, чтобы отправлять только при изменении, а не спамить
-#TODO 2. Проблема перезаписывания планером сообщения до отправки роботу
-#TODO 3. Рефакторинг
-#TODO 4. Логирование
+host = config['HOSTS']['Main_host']
+buffersize = int(config['PARAMS']['Buffersize'])
+port_3d_scene = int(config['PORTS']['Port_3d_scene'])
+port_rca = int(config['PORTS']['Port_rca'])
+# config end
 
 
 def listen_to_robot(client, who, client_for_scene, queue_messages):
@@ -30,7 +39,7 @@ def listen_to_robot(client, who, client_for_scene, queue_messages):
                 if cmd == 'e':
                     sys.exit(0)
 
-                data = client.recv(size)
+                data = client.recv(buffersize)
 
                 if data:
                     client_for_scene.send(data)
@@ -38,11 +47,10 @@ def listen_to_robot(client, who, client_for_scene, queue_messages):
                     raise socket.error('Client disconnected')
 
 
-
 def listen_to_planner(client, queue_messages):
     while True:
 
-        data = client.recv(size)
+        data = client.recv(buffersize)
         message = data.decode()
 
         if data:
@@ -65,11 +73,17 @@ sock.listen(5)
 
 while True:
     client, address = sock.accept()
-    who = client.recv(size).decode()
+    who = client.recv(buffersize).decode()
     if who != 'p':
 
-        threading.Thread(target = listen_to_robot, args = (client, who, client_for_scene, queue_messages)).start()
+        threading.Thread(
+            target=listen_to_robot,
+            args=(
+                client,
+                who,
+                client_for_scene,
+                queue_messages)).start()
     else:
-        threading.Thread(target = listen_to_planner, args=(client, queue_messages)).start()
-
-
+        threading.Thread(
+            target=listen_to_planner, args=(
+                client, queue_messages)).start()
