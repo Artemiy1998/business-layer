@@ -2,6 +2,12 @@ import os
 import logging
 
 def client_adapter_func(client, json_data):
+    """
+    @brief This Function send planer current state system
+    :param client: socket client
+    :param json_data: data in json format
+    :return:
+    """
     while True:
         try:
             message = client.recv(1024).decode()

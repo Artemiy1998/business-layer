@@ -71,6 +71,10 @@ def data_convert_json_to_str_byte():
 
 
 def send_planner():
+    """@brief Function sends a request to the planer from the client
+        all parameters used in this function - global variable
+         Function return nothing
+    """
     try:
         data_byte_send = data_convert_json_to_str_byte()
         socket_Planner.send(data_byte_send)
@@ -82,6 +86,10 @@ def send_planner():
 
 
 def send_3d_scene():
+    """@brief Function sends a request to the scene from the client
+              all parameters used in this function - global variable
+              Function return response frm the scene
+        """
     try:
         socket_3dScene.send(str(data_Json.get('flag')).encode())
         data_into_3d_scene = socket_3dScene.recv(2048)

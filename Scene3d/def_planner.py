@@ -2,6 +2,12 @@ import os
 import logging
 
 def planner_func(client, json_data):
+    """
+    @brief This Function send planer current state system
+    :param client: socket client
+    :param json_data: data in json format
+    :return:
+    """
     while True:
         data = json_data.get()
         try:
