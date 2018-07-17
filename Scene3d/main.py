@@ -4,20 +4,23 @@ from Scene3d.def_rca import rca_func
 from Scene3d.def_client_adapter import client_adapter_func
 from Scene3d.utils import json_data
 import socket
+import os
+import configparser
 
 # config
-host = ''
+config_file = os.path.join(
+    os.path.dirname(
+        os.path.dirname(__file__)),
+    'configBL.ini')
+config = configparser.ConfigParser()
+config.read(config_file)
+host = config['HOSTS']['Main_host']
+port_3d_scene = int(config['PORTS']['Port_3d_scene'])
 size = 1024
-port_rca = 9099
-port_planner = 10000
-port_3dscene = 9093
-port_rcv_fanuc = 9080
-port_rcv_cart = 9081
-robo_dict = {'f': 'none', 't': 'none'}
 # config end
 
 sock_main = socket.socket()
-sock_main.bind(('localhost',9093))
+sock_main.bind((host, port_3d_scene))
 sock_main.listen(3)
 
 while True:

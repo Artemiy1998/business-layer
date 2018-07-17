@@ -1,14 +1,27 @@
 import socket
 import json
 import time
+import configparser
+import os
 
 # cnfg
-address_client = ('localhost', 9090)
-address_3dScene = ('localhost', 9093)
-address_Planner = ('localhost', 10000)
-listen_var = 100
+config_file = os.path.join(
+    os.path.dirname(
+        os.path.dirname(__file__)),
+    'configBL.ini')
+config = configparser.ConfigParser()
+config.read(config_file)
+host = config['HOSTS']['Main_host']
+port_cl_ad = int(config['PORTS']['Port_cl_adapter'])
+port_planner = int(config['PORTS']['Port_planner'])
+port_3d_scene = int(config['PORTS']['Port_3d_scene'])
+listen_var = int(config['PARAMS']['Listen'])
+
+
+address_client = (host, port_cl_ad)
+address_3dScene = (host, port_3d_scene)
+address_Planner = (host, port_planner)
 dict_Name = {'fanuc': 'f', 'telega': 't'}
-#TODO генерировать словать из конфига
 
 socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket_client.bind(address_client)
