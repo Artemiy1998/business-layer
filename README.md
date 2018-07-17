@@ -1,5 +1,14 @@
-# Project Title
+# Business Layer
 Business Layer of Robot Control System.
+
+## What's in the box?
+This repo contains following modules.
+
+1. Client Adapter
+2. Planner
+3. Robot Control Adapter
+4. Scene3d
+5. Env
 
 ## Getting Started
 
@@ -77,7 +86,7 @@ See also the list of [contributors](https://github.com/your/project/contributors
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License
 
 ## Acknowledgments
 
