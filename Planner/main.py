@@ -1,9 +1,18 @@
+""" @author Urazov Dilshod
+Documentation for Planner module
+
+@brief Now planner do nothing but transfer
+
+"""
+
 import os
 import socket
 import sys
 import configparser
+import logging
 
-# now planner do nothing but transfer
+# logging
+logging.basicConfig(format = u' %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG, filename = 'Planner.log')
 
 # config
 config_file = os.path.join(
@@ -25,12 +34,21 @@ robo_dict = ['f', 't']
 # end config
 
 sock_rob_ad = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_rob_ad.connect((host, port_rob_ad))
-sock_rob_ad.send(who.encode())
+try:
+    sock_rob_ad.connect((host, port_rob_ad))
+    sock_rob_ad.send(who.encode())
+except ConnectionRefusedError:
+    logging.error('RCA refused connection')
+
+
 
 sock_3d_scene = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_3d_scene.connect((host, port_3d_scene))
-sock_3d_scene.send(b'planner')
+try:
+    sock_3d_scene.connect((host, port_3d_scene))
+    sock_3d_scene.send(b'planner')
+except ConnectionRefusedError:
+    logging.error('3dscene refused connection')
+
 
 sock_serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock_serv.bind((host, port_planner))
@@ -43,15 +61,27 @@ def get_scene():
 
 
 while True:
-
-    data = conn.recv(buffersize)
+    try:
+        data = conn.recv(buffersize)
+    except ConnectionAbortedError:
+        logging.error('ClientAdapter aborted connection')
     message = data.decode()
     print(message)
     if message == 'e':
         for robot in robo_dict:
             message = robot + ':' + 'e'
-            sock_rob_ad.send(message.encode())
-        sock_rob_ad.send(b'e')
+            try:
+                sock_rob_ad.send(message.encode())
+            except ConnectionAbortedError:
+                logging.error('RCA aborted connection')
+        try:
+            sock_rob_ad.send(b'e')
+        except ConnectionAbortedError:
+            logging.error('RCA aborted connection')
+        logging.info('Planner stopped')
         sys.exit(0)
+    try:
+        sock_rob_ad.send(data)
+    except ConnectionAbortedError:
+        logging.error('RCA aborted connection')
 
-    sock_rob_ad.send(data)
