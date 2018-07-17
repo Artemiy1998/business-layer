@@ -17,7 +17,7 @@ import configparser
 config_file = os.path.join(
     os.path.dirname(
         os.path.dirname(__file__)),
-    'configRCA.ini')
+    'configBL.ini')
 config = configparser.ConfigParser()
 config.read(config_file)
 
