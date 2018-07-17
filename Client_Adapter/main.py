@@ -1,7 +1,8 @@
 """ @author Morozov Artemii
 Documentation for Client Adapter module.
 
-@brief Client Adapter module performs the communication of Business Layer with client.
+@brief Client Adapter module performs the
+communication of Business Layer with client.
 
 
 """
@@ -12,6 +13,7 @@ import time
 import configparser
 import os
 import logging
+
 # cnfg
 config_file = os.path.join(
     os.path.dirname(
@@ -24,7 +26,6 @@ port_cl_ad = int(config['PORTS']['Port_cl_adapter'])
 port_planner = int(config['PORTS']['Port_planner'])
 port_3d_scene = int(config['PORTS']['Port_3d_scene'])
 listen_var = int(config['PARAMS']['Listen'])
-
 
 address_client = (host, port_cl_ad)
 address_3dScene = (host, port_3d_scene)
@@ -42,10 +43,13 @@ socket_3dScene.send(b'ClAd')
 socket_Planner = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket_Planner.connect(address_Planner)
 
-logging.basicConfig(format = u' %(levelname)-8s [%(asctime)s] %(message)s', level = logging.DEBUG)
+logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
+                    level=logging.DEBUG)
+message_error = b'Error, somebody don\'t be responsible, please read logs'
 
 
-def except_func(def_send, socket_component, socket_address, socket_another_component):
+def except_func(def_send, socket_component,
+                socket_address, socket_another_component):
     for i in range(3):
         time.sleep(60)
         try:
@@ -54,7 +58,7 @@ def except_func(def_send, socket_component, socket_address, socket_another_compo
             def_send()
         except ConnectionRefusedError:
             pass
-    client_Socket_Conn.send(b'Error, somebody don\'t be responsible, please read logs')
+    client_Socket_Conn.send()
     logging.info('send Client message error')
     socket_another_component.send(b'e')
 
@@ -66,7 +70,8 @@ def except_func(def_send, socket_component, socket_address, socket_another_compo
 
 
 def data_convert_json_to_str_byte():
-    data_str_byte = (str(dict_Name.get(data_Json.get('name'))) + ':' + data_Json.get('command')).encode()
+    data_str_byte = (str(dict_Name.get(data_Json.get('name')))
+                     + ':' + data_Json.get('command')).encode()
     return data_str_byte
 
 
@@ -82,7 +87,8 @@ def send_planner():
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
-        except_func(send_planner(), socket_Planner, address_Planner, socket_3dScene)
+        except_func(send_planner(), socket_Planner,
+                    address_Planner, socket_3dScene)
 
 
 def send_3d_scene():
@@ -98,12 +104,14 @@ def send_3d_scene():
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
         logging.info('send Client message error')
-        except_func(send_3d_scene(), socket_3dScene, address_3dScene, socket_Planner)
+        except_func(send_3d_scene(), socket_3dScene,
+                    address_3dScene, socket_Planner)
     except ConnectionResetError:
         logging.error('ConnectionResetError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
         logging.info('send Client message error')
-        except_func(send_3d_scene(), socket_3dScene, address_3dScene, socket_Planner)
+        except_func(send_3d_scene(), socket_3dScene,
+                    address_3dScene, socket_Planner)
 
 
 while True:
