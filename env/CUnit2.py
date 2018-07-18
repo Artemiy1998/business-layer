@@ -9,5 +9,5 @@ while True:
     data = sock_client.recv(1024)
     message = data.decode()
     print(message)
-    answer = '\"' + str(randint(1,100)) + '\":\"' + message + '\"'
+    answer = '\"data\":\"' + message + '\"'
     sock_client.send(answer.encode())

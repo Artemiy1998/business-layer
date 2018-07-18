@@ -15,8 +15,11 @@ class Scene3Ddata:
         print(temp_data)
         for item in temp_data:
             print(item, 00000)
-            temp_json = json.loads('{'+item+'}')
-            self.data.update(temp_json)
+            try:
+                temp_json = json.loads('{'+item+'}')
+                self.data.update(temp_json)
+            except Exception:
+                pass
 
   #  @synchronized
     def get(self):

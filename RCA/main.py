@@ -41,5 +41,4 @@ while True:
         common_conn.start()
         switch.append(common_conn)
     except Exception:
-
         pass

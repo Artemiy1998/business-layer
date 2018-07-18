@@ -1,6 +1,11 @@
 import socket
 from threading import Thread, Event
+import logging
 
+logging.basicConfig(
+    format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
+    level=logging.DEBUG,
+    filename='RCA.log')
 
 class CommonSocket(object):
     def __init__(self, sock, ready_to_read, ready_to_write):
@@ -12,7 +17,7 @@ class CommonSocket(object):
         self.sock.setblocking(0)
         self.sock.settimeout(0.1)
         self.who = sock.recv(1024).decode()
-        print(self.who)
+        logging.info(self.who)
         self.ready_to_read = ready_to_read
         self.ready_to_write = ready_to_write
         self.thread_to_read = Thread(name=self.who + '_read', target=self.read_func)
@@ -35,7 +40,7 @@ class CommonSocket(object):
             if not self.ready_to_read:
                 self.message_from = self.recv()
                 if self.message_from != '':
-                    print(self.message_from)
+                    logging.info(self.who + ' : ' + self.message_from)
                     self.ready_to_read = True
                 if self.exit:
                     break
@@ -43,7 +48,7 @@ class CommonSocket(object):
     def write_func(self):
         while True:
             if self.ready_to_write:
-                print(self.message_to)
+                logging.info(self.who + ' : ' + self.message_to)
                 try:
                     self.sock.send(self.message_to.encode())
                     self.ready_to_write = False

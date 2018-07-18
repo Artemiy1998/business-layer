@@ -63,6 +63,7 @@ def get_scene():
 
 
 while True:
+    global data
     try:
         data = conn.recv(buffersize)
     except ConnectionAbortedError:

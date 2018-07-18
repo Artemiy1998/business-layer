@@ -1,6 +1,12 @@
 import socket
 from threading import Thread
 from RCA.common_thread_object import CommonSocket
+import logging
+
+logging.basicConfig(
+    format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
+    level=logging.DEBUG,
+    filename='RCA.log')
 
 class Switch(object, ):
     def __init__(self, scene3d_address):
@@ -16,7 +22,7 @@ class Switch(object, ):
 
     def append(self, client_sock):
         if not isinstance(client_sock,CommonSocket):
-            raise TypeError("not CUSocket type")
+            raise TypeError("not CommonSocket type")
         self.socket_dict.update({client_sock.who:client_sock})
 
     def process(self):
