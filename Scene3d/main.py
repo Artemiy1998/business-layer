@@ -7,9 +7,11 @@ import socket
 import os
 import configparser
 import logging
+logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s', level=logging.DEBUG, filename='scene3d.log')
 # config
 logging.info('3dScene start')
 config_file = os.path.join(
+
     os.path.dirname(
         os.path.dirname(__file__)),
     'configBL.ini')
@@ -24,11 +26,11 @@ sock_main = socket.socket()
 sock_main.bind((host, port_3d_scene))
 sock_main.listen(3)
 
-logging.basicConfig(format = u' %(levelname)-8s [%(asctime)s] %(message)s', level = logging.DEBUG)
+
 
 while True:
     client, address = sock_main.accept()
-    logging.info('Connect ' + address)
+    logging.info('Connect ' + address[0])
     who_is_it = client.recv(1024).decode()
 
     if who_is_it == 'planner':

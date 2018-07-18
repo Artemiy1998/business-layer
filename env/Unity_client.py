@@ -11,3 +11,5 @@ while True:
     dataJson = json.dumps(dataToSend)
     sock.send(dataJson.encode())
     time.sleep(1)
+
+

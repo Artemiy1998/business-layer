@@ -68,7 +68,8 @@ while True:
     except ConnectionAbortedError:
         logging.error('ClientAdapter aborted connection')
     message = data.decode()
-    logging.info(message)
+    if message != '':
+            logging.info(message)
     if message == 'e':
         for robot in robo_dict:
             message = robot + ':' + 'e'

@@ -1,6 +1,6 @@
 import os
 import logging
-
+logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s', level=logging.DEBUG, filename='scene3d.log')
 def planner_func(client, json_data):
     """
     @brief This Function send planer current state system
@@ -12,8 +12,9 @@ def planner_func(client, json_data):
         data = json_data.get()
         try:
             message = client.recv(1024).encode()
-            logging.info('def_planer recv ' + message)
+
             if message == "get_scene":
+                logging.info('def_planer recv ' + message)
                 client.send(data.encode())
                 logging.info('planner send')
             if json_data.exit:
