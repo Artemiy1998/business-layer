@@ -1,15 +1,17 @@
 from threading import  Thread
-from Scene3d.def_planner import planner_func
-from Scene3d.def_rca import rca_func
-from Scene3d.def_client_adapter import client_adapter_func
-from Scene3d.utils import json_data
+from def_planner import planner_func
+from def_rca import rca_func
+from def_client_adapter import client_adapter_func
+from utils import json_data
 import socket
 import os
 import configparser
 import logging
+logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s', level=logging.DEBUG, filename='scene3d.log')
 # config
 logging.info('3dScene start')
 config_file = os.path.join(
+
     os.path.dirname(
         os.path.dirname(__file__)),
     'configBL.ini')
@@ -24,11 +26,11 @@ sock_main = socket.socket()
 sock_main.bind((host, port_3d_scene))
 sock_main.listen(3)
 
-logging.basicConfig(format = u' %(levelname)-8s [%(asctime)s] %(message)s', level = logging.DEBUG)
+
 
 while True:
     client, address = sock_main.accept()
-    logging.info('Connect ' + address)
+    logging.info('Connect ' + address[0])
     who_is_it = client.recv(1024).decode()
 
     if who_is_it == 'planner':
@@ -41,6 +43,7 @@ while True:
         logging.info(who_is_it + ' connect')
         rca_thread.start()
         logging.info('Thread for ' + who_is_it + ' start')
+
     elif who_is_it == 'ClAd':
         client_adapter_thread = Thread(target=client_adapter_func, args=(client, json_data))
         logging.info(who_is_it + ' connect')

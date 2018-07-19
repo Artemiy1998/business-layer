@@ -1,5 +1,7 @@
 import os
+from datetime import datetime
 import logging
+logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s', level=logging.DEBUG, filename='scene3d.log')
 
 def rca_func(client, json_data):
     """
@@ -11,11 +13,12 @@ def rca_func(client, json_data):
     while True:
         try:
             data = client.recv(1024).decode()
-            logging.info('def_rca recv ' + data)
+            if data:
+                logging.info('def_rca recv ' + str(datetime.now()).replace(':', ';') + ' : ' + data)
 
-            json_data.set(data)
-            if json_data.exit:
-                os._exit(0)
+                json_data.set(data)
+                if json_data.exit:
+                    os._exit(0)
         except ConnectionRefusedError:
             logging.error('RCA disconnected. ConnectionRefusedError')
         except ConnectionAbortedError:

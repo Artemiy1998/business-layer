@@ -42,9 +42,8 @@ socket_3dScene.send(b'ClAd')
 
 socket_Planner = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket_Planner.connect(address_Planner)
-
 logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
-                    level=logging.DEBUG)
+                    level=logging.DEBUG, filename='clad.log')
 message_error = b'Error, somebody don\'t be responsible, please read logs'
 
 
@@ -54,12 +53,12 @@ def except_func(def_send, socket_component,
         time.sleep(60)
         try:
             socket_component.connect(socket_address)
-            logging.info(socket_address + '  Reconnect')
+            logging.info(socket_address[0] + '  Reconnect')
             def_send()
         except ConnectionRefusedError:
             pass
     client_Socket_Conn.send(message_error)
-    logging.info('send Client ' + message_error)
+    logging.info('send Client ' + message_error.decode())
     socket_another_component.send(b'e')
 
     socket_component.close()
@@ -72,7 +71,7 @@ def except_func(def_send, socket_component,
 
 def data_convert_json_to_str_byte():
     data_str_byte = (str(dict_Name.get(data_Json.get('name')))
-                     + ':' + data_Json.get('command')).encode()
+                     + ':' + data_Json.get('command')+'|').encode()
     return data_str_byte
 
 
@@ -84,7 +83,7 @@ def send_planner():
     try:
         data_byte_send = data_convert_json_to_str_byte()
         socket_Planner.send(data_byte_send)
-        logging.info('send Planner ' + data_byte_send)
+        logging.info('send Planner ' + data_byte_send.decode())
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
@@ -118,10 +117,8 @@ def send_3d_scene():
 while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
     while True:
-        logging.info('Connect ' + client_Socket_Address)
-
         data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
-        logging.info('From ' + client_Socket_Address + '  recv  ' + data_Json)
+        logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
         if data_Json.get('name') in dict_Name:
             if data_Json.get('flag') == 0:
                 send_planner()

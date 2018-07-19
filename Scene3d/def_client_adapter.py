@@ -1,6 +1,6 @@
 import os
 import logging
-
+logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s', level=logging.DEBUG, filename='scene3d.log')
 def client_adapter_func(client, json_data):
     """
     @brief This Function send planer current state system
@@ -11,8 +11,8 @@ def client_adapter_func(client, json_data):
     while True:
         try:
             message = client.recv(1024).decode()
-            logging.info('def_client_adapter ' + message)
             if message == '1':
+                logging.info('def_client_adapter ' + message)
                 data = json_data.get()
                 client.send(data.decode())
                 logging.info('client send')
