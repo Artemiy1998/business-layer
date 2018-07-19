@@ -10,8 +10,13 @@ import socket
 import sys
 import configparser
 import logging
+import json
 import time
 # logging
+
+def consistently(list):
+    while next(iter(list[i])) == 'who':
+       str_send = list[i]['who'][0] + ':' + list[i]['cmd'] + list[i]['params']
 
 
 logging.basicConfig(
@@ -67,7 +72,11 @@ def get_scene():
 while True:
     global data
     try:
-        data = conn.recv(buffersize)
+        data = json.loads(conn.recv(buffersize).decode())
+        if data['cmd'] == 'consistently':
+            consistenly(data['consistently'])
+        elif data['cmd'] == 'parallel':
+            parallel(data['parallel'])
 
     except ConnectionAbortedError:
         logging.error('ClientAdapter aborted connection')
