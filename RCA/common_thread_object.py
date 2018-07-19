@@ -15,7 +15,7 @@ class CommonSocket(object):
             raise TypeError("not Bool type")
         self.sock = sock
         self.sock.setblocking(0)
-        self.sock.settimeout(0.1)
+        #self.sock.settimeout(0.1)
         self.who = sock.recv(1024).decode()
         logging.info(self.who)
         self.ready_to_read = ready_to_read
