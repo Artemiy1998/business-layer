@@ -7,11 +7,9 @@ sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 sock.connect(('localhost', 9090))
 
 while True:
-    if randint(0, 100) % 2 == 1:
-        name = "fanuc"
-    else:
-        name = "telega"
-    dataToSend = {"flag": 0, "name": str(name), "command": str(datetime.now()).replace(':', ';')}
+    name = input('name')
+    cmd = input('cmd')
+    dataToSend = {"flag": 0, "name": str(name), "command": str(cmd)}
     dataJson = json.dumps(dataToSend)
     sock.send(dataJson.encode())
     time.sleep(0.04)
