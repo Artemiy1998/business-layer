@@ -39,10 +39,9 @@ socket_client.listen(listen_var)
 socket_3dScene = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket_3dScene.connect(address_3dScene)
 socket_3dScene.send(b'ClAd')
-print('3dscene')
+
 socket_Planner = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 socket_Planner.connect(address_Planner)
-print('planner')
 logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
                     level=logging.DEBUG, filename='clad.log')
 message_error = b'Error, somebody don\'t be responsible, please read logs'
@@ -114,10 +113,9 @@ def send_3d_scene():
         except_func(send_3d_scene(), socket_3dScene,
                     address_3dScene, socket_Planner)
 
-print('aaaaa')
+
 while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
-    print(client_Socket_Address)
     while True:
         data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
         logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
