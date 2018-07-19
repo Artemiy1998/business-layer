@@ -29,8 +29,12 @@ class CommonSocket(object):
     def recv(self):
         total_data = ''
         try:
-            data = self.sock.recv(1024)
-            total_data += data.decode()
+            while True:
+                data = self.sock.recv(1024)
+                if data:
+                    total_data += data.decode()
+                else:
+                    break
         except Exception:
             pass
         return total_data
@@ -42,8 +46,8 @@ class CommonSocket(object):
                 if self.message_from != '':
                     logging.info(self.who + ' : ' + self.message_from)
                     self.ready_to_read = True
-                if self.exit:
-                    break
+            if self.exit:
+                 break
 
     def write_func(self):
         while True:

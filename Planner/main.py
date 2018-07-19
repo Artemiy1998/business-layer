@@ -10,8 +10,10 @@ import socket
 import sys
 import configparser
 import logging
-
+import time
 # logging
+
+
 logging.basicConfig(
     format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
     level=logging.DEBUG,
@@ -66,9 +68,11 @@ while True:
     global data
     try:
         data = conn.recv(buffersize)
+
     except ConnectionAbortedError:
         logging.error('ClientAdapter aborted connection')
     message = data.decode()
+    #time.sleep(0.001)
     if message != '':
             logging.info(message)
     if message == 'e':

@@ -72,7 +72,7 @@ def except_func(def_send, socket_component,
 
 def data_convert_json_to_str_byte():
     data_str_byte = (str(dict_Name.get(data_Json.get('name')))
-                     + ':' + data_Json.get('command')).encode()
+                     + ':' + data_Json.get('command')+'|').encode()
     return data_str_byte
 
 
@@ -119,10 +119,6 @@ while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
     print(client_Socket_Address)
     while True:
-        logging.info('Connect ' + client_Socket_Address[0])
-        print(client_Socket_Address)
-
-
         data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
         logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
         if data_Json.get('name') in dict_Name:

@@ -17,6 +17,7 @@ class Scene3Ddata:
             print(item, 00000)
             try:
                 temp_json = json.loads('{'+item+'}')
+
                 self.data.update(temp_json)
             except Exception:
                 pass
