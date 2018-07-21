@@ -13,6 +13,8 @@ while True:
     print(messages)
     messages = messages.split('|')
     for message in messages:
+        if 'e' in message:
+            exit()
         if message == '':
             continue
         answer = '\"data\":\"' + message + '\"|'

@@ -1,9 +1,10 @@
-from common_thread_object import CommonSocket
-from switch_thread_object import Switch
+from RCA.common_thread_object import CommonSocket
+from RCA.switch_thread_object import Switch
 import socket
 import logging
 import os
 import configparser
+
 # logging
 logging.basicConfig(
     format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
@@ -34,12 +35,11 @@ serv_sock.setblocking(0)
 serv_sock.bind((host, port_rca))
 serv_sock.listen(listen)
 
-while True:
+while not switch.exit:
     try:
         conn, address = serv_sock.accept()
         common_conn = CommonSocket(conn, False, False)
         common_conn.start()
         switch.append(common_conn)
     except Exception:
-        pass
-
+        print(switch.exit)

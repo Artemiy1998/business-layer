@@ -27,7 +27,7 @@ port_planner = int(config['PORTS']['Port_planner'])
 port_3d_scene = int(config['PORTS']['Port_3d_scene'])
 listen_var = int(config['PARAMS']['Listen'])
 
-address_client = (host, port_cl_ad)
+address_client = (socket.gethostbyname(socket.gethostname()), port_cl_ad)
 address_3dScene = (host, port_3d_scene)
 address_Planner = (host, port_planner)
 dict_Name = {'fanuc': 'f', 'telega': 't'}
@@ -119,25 +119,24 @@ while True:
     while True:
         data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
         logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
-        if data_Json.get('name') in dict_Name:
-            if data_Json.get('flag') == 0:
+
+        if data_Json.get('flag') == '0':
+            if data_Json.get('name') in dict_Name:
                 send_planner()
-            elif data_Json.get('flag') == 1:
-                data_Send_Byte = send_3d_scene()
-                socket_client.send(data_Send_Byte)
-            elif data_Json.get('flag') == 'e':
-                socket_3dScene.send(b'e')
-                logging.info('send 3dScene e')
-                socket_Planner.send(b'e')
-                logging.info('send Planner e')
-                socket_Planner.close()
-                logging.info('Planner disconnect')
-                socket_3dScene.close()
-                logging.info('3dScene disconnect')
-                client_Socket_Conn.close()
-                logging.info('Client disconnect')
-                time.sleep(3)
-                exit()  # planning crash for test builds
-        else:
-            break
+        elif data_Json.get('flag') == '1':
+            data_Send_Byte = send_3d_scene()
+            socket_client.send(data_Send_Byte)
+        elif data_Json.get('flag') == 'e':
+            socket_3dScene.send(b'e')
+            logging.info('send 3dScene e')
+            socket_Planner.send(b'e')
+            logging.info('send Planner e')
+            socket_Planner.close()
+            logging.info('Planner disconnect')
+            socket_3dScene.close()
+            logging.info('3dScene disconnect')
+            client_Socket_Conn.close()
+            logging.info('Client disconnect')
+            time.sleep(3)
+            exit()  # planning crash for test builds
     client_Socket_Conn.close()

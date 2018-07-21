@@ -86,13 +86,14 @@ while True:
             logging.info(message)
     if message == 'e':
         for robot in robo_dict:
-            message = robot + ':' + 'e'
+            message = robot + ':' + 'e|'
             try:
                 sock_rob_ad.send(message.encode())
+                time.sleep(1)
             except ConnectionAbortedError:
                 logging.error('RCA aborted connection')
         try:
-            sock_rob_ad.send(b'e')
+            sock_rob_ad.send(b'e|')
         except ConnectionAbortedError:
             logging.error('RCA aborted connection')
         logging.info('Planner stopped')
