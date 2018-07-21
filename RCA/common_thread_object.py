@@ -1,5 +1,5 @@
 import socket
-from threading import Thread, Event
+from threading import Thread
 import logging
 
 logging.basicConfig(
@@ -15,7 +15,6 @@ class CommonSocket(object):
             raise TypeError("not Bool type")
         self.sock = sock
         self.sock.setblocking(0)
-        #self.sock.settimeout(0.1)
         self.who = sock.recv(1024).decode()
         logging.info(self.who)
         self.ready_to_read = ready_to_read
@@ -67,7 +66,10 @@ class CommonSocket(object):
         self.thread_to_read.start()
 
     def close(self):
+        logging.debug(self.who + ' exit')
         self.ready_to_write = False
         self.ready_to_read = False
+        self.thread_to_read.join()
+        self.thread_to_write.join()
         self.exit = True
         self.sock.close()

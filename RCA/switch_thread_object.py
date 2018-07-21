@@ -1,22 +1,23 @@
 import socket
 from threading import Thread
-from common_thread_object import CommonSocket
+from RCA.common_thread_object import CommonSocket
 import logging
+import os
 import time
-
 logging.basicConfig(
     format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
     level=logging.DEBUG,
     filename='RCA.log')
 
-class Switch(object, ):
+
+class Switch(object):
     def __init__(self, scene3d_address):
         self.scene_3d_sock = socket.socket()
         self.scene_3d_sock.connect(scene3d_address)
         self.scene_3d_sock.send(b'RCA')
         self.socket_dict = {}
         self.thread = Thread(name='switch', target=self.process)
-
+        self.exit = False
 
     def run(self):
         self.thread.start()
@@ -35,25 +36,27 @@ class Switch(object, ):
                     if planer_messages != '':
                         planer_messages = planer_messages.split('|')
                         for planer_message in planer_messages:
-                            logging.debug('olololololol : ' + planer_message)
-                            if planer_message == '' and not ':' in planer_message:
+                            logging.debug('planner message : ' + planer_message)
+                            if planer_message == 'e':
+                                time.sleep(5)
+                                logging.info('exit')
+                                os._exit(0)
+                            if planer_message == '':
                                 continue
                             [sock_id, planer_cmd] = planer_message.split(':')
                             if sock_id not in socket_dict:
                                 continue
                             socket_dict[sock_id].message_to = planer_cmd+' '     #only for local testing env
                             socket_dict[sock_id].ready_to_write = True
-                            time.sleep(0.005)
                     socket_dict[sock_name].ready_to_read = False
                 elif socket_dict[sock_name].ready_to_read and sock_name != 'p':
                     messages = socket_dict[sock_name].message_from
                     if messages != '':
                         messages = messages.split('|')
                         for message in messages:
-                            logging.debug('aaaaaaaa : '+message)
+                            logging.debug(str(sock_name) + 'message: ' + message)
                             self.scene_3d_sock.send(message.encode())
-                            time.sleep(0.005)
                     socket_dict[sock_name].ready_to_read = False
-
+            del socket_dict
 
 
