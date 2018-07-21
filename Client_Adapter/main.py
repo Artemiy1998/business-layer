@@ -27,7 +27,7 @@ port_planner = int(config['PORTS']['Port_planner'])
 port_3d_scene = int(config['PORTS']['Port_3d_scene'])
 listen_var = int(config['PARAMS']['Listen'])
 
-address_client = (socket.gethostbyname(socket.gethostname()), port_cl_ad)
+address_client = (host, port_cl_ad)
 address_3dScene = (host, port_3d_scene)
 address_Planner = (host, port_planner)
 dict_Name = {'fanuc': 'f', 'telega': 't'}
