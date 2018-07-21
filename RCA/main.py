@@ -1,5 +1,5 @@
-from RCA.common_thread_object import CommonSocket
-from RCA.switch_thread_object import Switch
+from common_thread_object import CommonSocket
+from switch_thread_object import Switch
 import socket
 import logging
 import os
@@ -41,5 +41,6 @@ while not switch.exit:
         common_conn = CommonSocket(conn, False, False)
         common_conn.start()
         switch.append(common_conn)
-    except Exception:
         print(switch.exit)
+    except Exception:
+        pass

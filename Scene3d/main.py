@@ -1,8 +1,8 @@
 from threading import  Thread
-from Scene3d.def_planner import planner_func
-from Scene3d.def_rca import rca_func
-from Scene3d.def_client_adapter import client_adapter_func
-from Scene3d.utils import json_data
+from def_planner import planner_func
+from def_rca import rca_func
+from def_client_adapter import client_adapter_func
+from utils import json_data
 import socket
 import os
 import configparser
