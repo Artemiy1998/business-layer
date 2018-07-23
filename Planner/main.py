@@ -12,6 +12,7 @@ import configparser
 import logging
 import json
 import time
+import math
 # logging
 
 def consistently(list):
@@ -115,14 +116,16 @@ while True:
                                                                data['Scenario'][i].get('command')))
                 sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i+1].get('name'),
                                                                data['Scenario'][i+1].get('command')))
-                time.sleep(1)
+                if int(data['Scenario'][i].get('time')) > int(data['Scenario'][i+1].get('time')):
+                    time.sleep(int(data['Scenario'][i].get('time')))
+                else:
+                    time.sleep(int(data['Scenario'][i+1].get('time')))
                 i += 1
             else:
                 sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i].get('name'),
                                                                data['Scenario'][i].get('command')))
-                time.sleep(1)
-            i+=1
-        # вот тут изменить. то есть в новом стандарте флаг всегда будет первым и отработываем по его значению
+                time.sleep(int(data['Scenario'][i].get('time')))
+            i += 1
             sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i].get('name'),
                                                            data['Scenario'][i].get('command')))
 

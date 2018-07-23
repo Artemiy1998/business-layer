@@ -95,6 +95,8 @@ def send_3d_scene():
     try:
         socket_3dScene.send(str(data_Json.get('flag')).encode())
         data_into_3d_scene = socket_3dScene.recv(2048)
+        print("3d")
+        print(data_into_3d_scene)
         return data_into_3d_scene
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
@@ -123,7 +125,7 @@ while True:
             send_planner()
         elif data_Json.get('flag') == '1':
             data_Send_Byte = send_3d_scene()
-            socket_client.send(data_Send_Byte)
+            client_Socket_Conn.send(data_Send_Byte)
         elif data_Json.get('flag') == 'e':
             socket_3dScene.send(b'e')
             logging.info('send 3dScene e')

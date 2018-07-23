@@ -14,20 +14,25 @@ while True:
     parallel1 = input('parallel: ')
     name1 = input('name: ')
     cmd1 = input('cmd: ')'''
-    flag = 0
+    flag = 1
     parallel = 'q'
     name = 'fanuc'
     cmd = 'cmd9'
     parallel1 = 'q'
     name1 = 'telega'
     cmd1 = 'cmd'
-    dataToSend = {"flag": str(flag),"Scenario": [{"parallel": True, "name": str(name), "command": str(cmd)},
-                                                 {"parallel": parallel1, "name": str(name1), "command": str(cmd1)},
-                                                 {"parallel": parallel1, "name": str(name), "command": "cmd1"},
-                                                 {"parallel": parallel1, "name": str(name1), "command": "cmd7"}]}
+    dataToSend = {"flag": "0","Scenario": [{"parallel": True, "name": str(name), "command": str(cmd),"time": str(3)},
+                                             {"parallel": parallel1, "name": str(name1), "command": str(cmd1),"time": str(1)},
+                                             {"parallel": parallel1, "name": str(name), "command": "cmd1","time": str(3)},
+                                             {"parallel": parallel1, "name": str(name1), "command": "cmd7","time": str(3)}]}
     dataJson = json.dumps(dataToSend)
     sock.send(dataJson.encode())
-    print(dataJson.encode())
+    time.sleep(5)
+    dataToSend1 = {"flag": str(flag), "Scenario": [{"parallel": True, "name": str(name), "command": str(cmd)}]}
+    dataJson1 = json.dumps(dataToSend1)
+    sock.send(dataJson1.encode())
+    data = sock.recv(2048).decode()
+    print("3d: " + data)
     time.sleep(0.04)
     a = input()
 
