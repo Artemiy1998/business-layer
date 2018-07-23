@@ -110,7 +110,6 @@ while True:
         data = json.loads(message)
         print(data)
         while i != (len(data['Scenario']) - 1):
-            print(i)
             if data['Scenario'][i].get('parallel') == 'True':
                 sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i].get('name'),
                                                                data['Scenario'][i].get('command')))
@@ -133,3 +132,6 @@ while True:
         logging.error('RCA aborted connection')
     except Exception as n:
         print(n)
+    #TODO добавить сюда отказоустойчивость при отловке какого либо осключения. чтобы он постоянно не спамил названием
+    #TODO этой ошибки. поставить еще один цикл внешний
+    #TODO Логирование
