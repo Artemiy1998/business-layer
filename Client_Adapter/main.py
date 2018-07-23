@@ -27,7 +27,7 @@ port_planner = int(config['PORTS']['Port_planner'])
 port_3d_scene = int(config['PORTS']['Port_3d_scene'])
 listen_var = int(config['PARAMS']['Listen'])
 
-address_client = (socket.gethostbyname(socket.gethostname()), port_cl_ad)
+address_client = (host, port_cl_ad)
 address_3dScene = (host, port_3d_scene)
 address_Planner = (host, port_planner)
 dict_Name = {'fanuc': 'f', 'telega': 't'}
@@ -69,21 +69,17 @@ def except_func(def_send, socket_component,
     exit()
 
 
-def data_convert_json_to_str_byte():
-    data_str_byte = (str(dict_Name.get(data_Json.get('name')))
-                     + ':' + data_Json.get('command')+'|').encode()
-    return data_str_byte
-
-
 def send_planner():
     """@brief Function sends a request to the planer from the client
         all parameters used in this function - global variable
          Function return nothing
     """
     try:
-        data_byte_send = data_convert_json_to_str_byte()
-        socket_Planner.send(data_byte_send)
-        logging.info('send Planner ' + data_byte_send.decode())
+        socket_Planner.send(json.dumps(data_Json).encode())
+        print(json.dumps(data_Json))
+        logging.info('send Planner ' + str(json.dumps(data_Json)))
+
+
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
@@ -117,12 +113,14 @@ def send_3d_scene():
 while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
     while True:
-        data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
-        logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
-
+        try:
+            data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
+        except ConnectionResetError:
+            break
+        #logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
+        print(data_Json)
         if data_Json.get('flag') == '0':
-            if data_Json.get('name') in dict_Name:
-                send_planner()
+            send_planner()
         elif data_Json.get('flag') == '1':
             data_Send_Byte = send_3d_scene()
             socket_client.send(data_Send_Byte)

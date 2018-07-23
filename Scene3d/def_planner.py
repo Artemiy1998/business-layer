@@ -11,7 +11,7 @@ def planner_func(client, json_data):
     while True:
         data = json_data.get()
         try:
-            message = client.recv(1024).encode()
+            message = client.recv(1024).decode()
 
             if message == "get_scene":
                 logging.info('def_planer recv ' + message)
