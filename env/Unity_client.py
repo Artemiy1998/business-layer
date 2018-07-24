@@ -17,14 +17,14 @@ while True:
     flag = 1
     parallel = 'q'
     name = 'fanuc'
-    cmd = 'cmd9'
+    cmd = 'cmd1'
     parallel1 = 'q'
     name1 = 'telega'
-    cmd1 = 'cmd'
+    cmd1 = 'cmd2'
     dataToSend = {"flag": "0","Scenario": [{"parallel": True, "name": str(name), "command": str(cmd),"time": str(3)},
                                              {"parallel": parallel1, "name": str(name1), "command": str(cmd1),"time": str(1)},
-                                             {"parallel": parallel1, "name": str(name), "command": "cmd1","time": str(3)},
-                                             {"parallel": parallel1, "name": str(name1), "command": "cmd7","time": str(3)}]}
+                                             {"parallel": parallel1, "name": str(name), "command": "cmd3","time": str(3)},
+                                             {"parallel": parallel1, "name": str(name1), "command": "cmd4","time": str(3)}]}
     dataJson = json.dumps(dataToSend)
     sock.send(dataJson.encode())
     time.sleep(5)

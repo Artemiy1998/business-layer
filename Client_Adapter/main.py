@@ -27,7 +27,7 @@ port_planner = int(config['PORTS']['Port_planner'])
 port_3d_scene = int(config['PORTS']['Port_3d_scene'])
 listen_var = int(config['PARAMS']['Listen'])
 
-address_client = (host, port_cl_ad)
+address_client = ('192.168.1.104', port_cl_ad)
 address_3dScene = (host, port_3d_scene)
 address_Planner = (host, port_planner)
 dict_Name = {'fanuc': 'f', 'telega': 't'}
@@ -114,14 +114,20 @@ def send_3d_scene():
 count = 0
 while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
+    print("Connect", client_Socket_Address)
     while True:
         print(count)
         try:
-            data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
+            data = client_Socket_Conn.recv(1024).decode()
+            print(data)
+            data_Json = json.loads(data)
         except ConnectionResetError:
+            print("Disconnect", client_Socket_Address)
+            break
+        except Exception:
+            print("Disconnect", client_Socket_Address)
             break
         #logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
-        print(data_Json)
         if data_Json.get('flag') == '0':
             send_planner()
         elif data_Json.get('flag') == '1':
