@@ -14,7 +14,7 @@ def client_adapter_func(client, json_data):
             if message == '1':
                 logging.info('def_client_adapter ' + message)
                 data = json_data.get()
-                client.send(data.decode())
+                client.send(data.encode())
                 logging.info('client send')
             if message == 'e':
                 json_data.exit = True

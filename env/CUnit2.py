@@ -17,7 +17,7 @@ while True:
             exit()
         if message == '':
             continue
-        answer = '\"data\":\"' + message + '\"|'
+        answer = '\"telega\":\"' + message + '\"|'
         time.sleep(1)
         sock_client.send(answer.encode())
 

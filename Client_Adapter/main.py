@@ -69,21 +69,17 @@ def except_func(def_send, socket_component,
     exit()
 
 
-def data_convert_json_to_str_byte():
-    data_str_byte = (str(dict_Name.get(data_Json.get('name')))
-                     + ':' + data_Json.get('command')+'|').encode()
-    return data_str_byte
-
-
 def send_planner():
     """@brief Function sends a request to the planer from the client
         all parameters used in this function - global variable
          Function return nothing
     """
     try:
-        data_byte_send = data_convert_json_to_str_byte()
-        socket_Planner.send(data_byte_send)
-        logging.info('send Planner ' + data_byte_send.decode())
+        socket_Planner.send(json.dumps(data_Json).encode())
+        print(json.dumps(data_Json))
+        logging.info('send Planner ' + str(json.dumps(data_Json)))
+
+
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
@@ -99,6 +95,8 @@ def send_3d_scene():
     try:
         socket_3dScene.send(str(data_Json.get('flag')).encode())
         data_into_3d_scene = socket_3dScene.recv(2048)
+        print("3d")
+        print(data_into_3d_scene)
         return data_into_3d_scene
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
@@ -113,19 +111,22 @@ def send_3d_scene():
         except_func(send_3d_scene(), socket_3dScene,
                     address_3dScene, socket_Planner)
 
-
+count = 0
 while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
     while True:
-        data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
-        logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
-
+        print(count)
+        try:
+            data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
+        except ConnectionResetError:
+            break
+        #logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
+        print(data_Json)
         if data_Json.get('flag') == '0':
-            if data_Json.get('name') in dict_Name:
-                send_planner()
+            send_planner()
         elif data_Json.get('flag') == '1':
             data_Send_Byte = send_3d_scene()
-            socket_client.send(data_Send_Byte)
+            client_Socket_Conn.send(data_Send_Byte)
         elif data_Json.get('flag') == 'e':
             socket_3dScene.send(b'e')
             logging.info('send 3dScene e')
@@ -139,4 +140,5 @@ while True:
             logging.info('Client disconnect')
             time.sleep(3)
             exit()  # planning crash for test builds
+        count += 1
     client_Socket_Conn.close()

@@ -10,8 +10,14 @@ import socket
 import sys
 import configparser
 import logging
+import json
 import time
+import math
 # logging
+
+def consistently(list):
+    while next(iter(list[i])) == 'who':
+       str_send = list[i]['who'][0] + ':' + list[i]['cmd'] + list[i]['params']
 
 
 logging.basicConfig(
@@ -57,39 +63,76 @@ except ConnectionRefusedError:
 sock_serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock_serv.bind((host, port_planner))
 sock_serv.listen(1)
-conn, addr = sock_serv.accept()
 
+
+dict_Name = {'fanuc' : 'f', 'telega' : 't'}
 
 def get_scene():
     sock_3d_scene.send(b'get_scene')
 
 
+def data_convert_json_to_str_byte(name, cmd):
+    data_str_byte = (dict_Name[name] + ':'+cmd + '|').encode()
+    print(data_str_byte)
+    return data_str_byte
+count = 0
 while True:
-    global data
-    try:
-        data = conn.recv(buffersize)
+    conn, addr = sock_serv.accept()
+    while True:
+        print(count)
+        i = 0
+        try:
 
-    except ConnectionAbortedError:
-        logging.error('ClientAdapter aborted connection')
-    message = data.decode()
-    #time.sleep(0.001)
-    if message != '':
-            logging.info(message)
-    if message == 'e':
-        for robot in robo_dict:
-            message = robot + ':' + 'e|'
+            message = conn.recv(2048).decode()
+
+        except ConnectionAbortedError:
+            logging.error('ClientAdapter aborted connection')
+
+
+
+        #time.sleep(0.001)
+        if message != '':
+                logging.info(message)
+        if message == 'e':
+            for robot in robo_dict:
+                message = robot + ':' + 'e|'
+                try:
+                    sock_rob_ad.send(message.encode())
+                    time.sleep(1)
+                except ConnectionAbortedError:
+                    logging.error('RCA aborted connection')
             try:
-                sock_rob_ad.send(message.encode())
-                time.sleep(1)
+                sock_rob_ad.send(b'e|')
             except ConnectionAbortedError:
                 logging.error('RCA aborted connection')
+            logging.info('Planner stopped')
+            sys.exit(0)
         try:
-            sock_rob_ad.send(b'e|')
+            data = json.loads(message)
+            print(data)
+            while i != (len(data['Scenario'])):
+                if data['Scenario'][i].get('parallel') == 'True':
+                    sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i].get('name'),
+                                                                   data['Scenario'][i].get('command')))
+                    sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i+1].get('name'),
+                                                                   data['Scenario'][i+1].get('command')))
+                    if int(data['Scenario'][i].get('time')) > int(data['Scenario'][i+1].get('time')):
+                        time.sleep(int(data['Scenario'][i].get('time')))
+                    else:
+                        time.sleep(int(data['Scenario'][i+1].get('time')))
+                    i += 1
+                else:
+                    sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i].get('name'),
+                                                                   data['Scenario'][i].get('command')))
+                    time.sleep(int(data['Scenario'][i].get('time')))
+                i += 1
+
         except ConnectionAbortedError:
             logging.error('RCA aborted connection')
-        logging.info('Planner stopped')
-        sys.exit(0)
-    try:
-        sock_rob_ad.send(data)
-    except ConnectionAbortedError:
-        logging.error('RCA aborted connection')
+        except Exception as n:
+            print(n)
+            break
+        count += 1
+    #TODO добавить сюда отказоустойчивость при отловке какого либо осключения. чтобы он постоянно не спамил названием
+    #TODO этой ошибки. поставить еще один цикл внешний
+    #TODO Логирование
