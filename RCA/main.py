@@ -41,5 +41,6 @@ while not switch.exit:
         common_conn = CommonSocket(conn, False, False)
         common_conn.start()
         switch.append(common_conn)
-    except Exception:
         print(switch.exit)
+    except Exception:
+        pass

@@ -1,6 +1,6 @@
 import socket
 from threading import Thread
-from RCA.common_thread_object import CommonSocket
+from common_thread_object import CommonSocket
 import logging
 import os
 import time
