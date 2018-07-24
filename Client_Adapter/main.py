@@ -111,10 +111,11 @@ def send_3d_scene():
         except_func(send_3d_scene(), socket_3dScene,
                     address_3dScene, socket_Planner)
 
-
+count = 0
 while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
     while True:
+        print(count)
         try:
             data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
         except ConnectionResetError:
@@ -139,4 +140,5 @@ while True:
             logging.info('Client disconnect')
             time.sleep(3)
             exit()  # planning crash for test builds
+        count += 1
     client_Socket_Conn.close()

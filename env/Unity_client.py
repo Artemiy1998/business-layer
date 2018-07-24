@@ -28,11 +28,11 @@ while True:
     dataJson = json.dumps(dataToSend)
     sock.send(dataJson.encode())
     time.sleep(5)
-    dataToSend1 = {"flag": str(flag), "Scenario": [{"parallel": True, "name": str(name), "command": str(cmd)}]}
-    dataJson1 = json.dumps(dataToSend1)
-    sock.send(dataJson1.encode())
-    data = sock.recv(2048).decode()
-    print("3d: " + data)
+    #dataToSend1 = {"flag": str(flag), "Scenario": [{"parallel": True, "name": str(name), "command": str(cmd)}]}
+    #dataJson1 = json.dumps(dataToSend1)
+    #sock.send(dataJson1.encode())
+   # data = sock.recv(2048).decode()
+   # print("3d: " + data)
     time.sleep(0.04)
     a = input()
 
