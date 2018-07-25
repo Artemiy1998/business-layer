@@ -87,7 +87,8 @@ while True:
 
         except ConnectionAbortedError:
             logging.error('ClientAdapter aborted connection')
-
+        except ConnectionResetError:
+            logging.error('ClientAdapter reset connection')
 
 
         #time.sleep(0.001)

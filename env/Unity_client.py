@@ -21,6 +21,7 @@ while True:
     parallel1 = 'q'
     name1 = 'telega'
     cmd1 = 'cmd2'
+    dataToSend1 = ''
     dataToSend = {"flag": "0","Scenario": [{"parallel": True, "name": str(name), "command": str(cmd),"time": str(3)},
                                              {"parallel": parallel1, "name": str(name1), "command": str(cmd1),"time": str(1)},
                                              {"parallel": parallel1, "name": str(name), "command": "cmd3","time": str(3)},
