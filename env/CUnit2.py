@@ -13,7 +13,7 @@ while True:
     print(messages)
     messages = messages.split('|')
     for message in messages:
-        if 'e' in message:
+        if 'e' == message:
             exit()
         if message == '':
             continue
