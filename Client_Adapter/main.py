@@ -27,7 +27,7 @@ port_planner = int(config['PORTS']['Port_planner'])
 port_3d_scene = int(config['PORTS']['Port_3d_scene'])
 listen_var = int(config['PARAMS']['Listen'])
 
-address_client = (host, port_cl_ad)
+address_client = ('localhost', port_cl_ad)
 address_3dScene = (host, port_3d_scene)
 address_Planner = (host, port_planner)
 dict_Name = {'fanuc': 'f', 'telega': 't'}
@@ -114,31 +114,44 @@ def send_3d_scene():
 count = 0
 while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
+    print("Connect", client_Socket_Address)
     while True:
         print(count)
         try:
-            data_Json = json.loads(client_Socket_Conn.recv(1024).decode())
+            data = client_Socket_Conn.recv(1024).decode()
+            print(data)
+            data_Json = json.loads(data)
         except ConnectionResetError:
+            print("Disconnect", client_Socket_Address)
             break
+        except Exception:
+            print("Disconnect", client_Socket_Address)
+            break
+        print(isinstance(data_Json,dict))
+        if isinstance(data_Json, dict):
         #logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
-        print(data_Json)
-        if data_Json.get('flag') == '0':
-            send_planner()
-        elif data_Json.get('flag') == '1':
-            data_Send_Byte = send_3d_scene()
-            client_Socket_Conn.send(data_Send_Byte)
-        elif data_Json.get('flag') == 'e':
-            socket_3dScene.send(b'e')
-            logging.info('send 3dScene e')
-            socket_Planner.send(b'e')
-            logging.info('send Planner e')
-            socket_Planner.close()
-            logging.info('Planner disconnect')
-            socket_3dScene.close()
-            logging.info('3dScene disconnect')
-            client_Socket_Conn.close()
-            logging.info('Client disconnect')
-            time.sleep(3)
-            exit()  # planning crash for test builds
+            try:
+                if data_Json.get('flag') == '0':
+                    send_planner()
+                elif data_Json.get('flag') == '1':
+                    data_Send_Byte = send_3d_scene()
+                    client_Socket_Conn.send(data_Send_Byte)
+                elif data_Json.get('flag') == 'e':
+                    socket_3dScene.send(b'e')
+                    logging.info('send 3dScene e')
+                    socket_Planner.send(b'e')
+                    logging.info('send Planner e')
+                    socket_Planner.close()
+                    logging.info('Planner disconnect')
+                    socket_3dScene.close()
+                    logging.info('3dScene disconnect')
+                    client_Socket_Conn.close()
+                    logging.info('Client disconnect')
+                    time.sleep(3)
+                    exit()  # planning crash for test builds
+            except AttributeError:
+                logging.error('not JSON')
+        else:
+            logging.error('not JSON')
         count += 1
     client_Socket_Conn.close()
