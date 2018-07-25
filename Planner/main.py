@@ -1,4 +1,4 @@
-""" @author Urazov Dilshod
+""" @author Artemii Morozov and Urazov Dilshod
 Documentation for Planner module
 
 @brief Now planner do nothing but transfer
@@ -10,8 +10,13 @@ import socket
 import sys
 import configparser
 import logging
+import json
 import time
+import math
 # logging
+
+#TODO при отключении клиент адаптера на CUnit, которому была адресована последняя команда, начинается спам этой командой
+#так как в беск цикле вызывается исключение и так снова и снова
 
 
 logging.basicConfig(
@@ -57,39 +62,70 @@ except ConnectionRefusedError:
 sock_serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock_serv.bind((host, port_planner))
 sock_serv.listen(1)
-conn, addr = sock_serv.accept()
 
+
+dict_Name = {'fanuc' : 'f', 'telega' : 't'}
 
 def get_scene():
     sock_3d_scene.send(b'get_scene')
 
 
+def data_convert_json_to_str_byte(name, cmd):
+    data_str_byte = (dict_Name[name] + ':'+cmd + '|').encode()
+    print(data_str_byte)
+    return data_str_byte
+count = 0
 while True:
-    global data
-    try:
-        data = conn.recv(buffersize)
-
-    except ConnectionAbortedError:
-        logging.error('ClientAdapter aborted connection')
-    message = data.decode()
-    #time.sleep(0.001)
-    if message != '':
-            logging.info(message)
-    if message == 'e':
-        for robot in robo_dict:
-            message = robot + ':' + 'e|'
+    conn, addr = sock_serv.accept()
+    while True:
+        print(count)
+        i = 0
+        try:
+            message = conn.recv(2048).decode()
+            if message != '':
+                    logging.info(message)
+            if message == 'e':
+                for robot in robo_dict:
+                    message = robot + ':' + 'e|'
+                    try:
+                        sock_rob_ad.send(message.encode())
+                        time.sleep(1)
+                    except ConnectionAbortedError:
+                        logging.error('RCA aborted connection')
+                try:
+                    sock_rob_ad.send(b'e|')
+                except ConnectionAbortedError:
+                    logging.error('RCA aborted connection')
+                logging.info('Planner stopped')
+                sys.exit(0)
             try:
-                sock_rob_ad.send(message.encode())
-                time.sleep(1)
+                data = json.loads(message)
+                while i != (len(data['Scenario'])):
+                    if data['Scenario'][i].get('parallel') == 'True':
+                        sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i].get('name'),
+                                                                       data['Scenario'][i].get('command')))
+                        sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i+1].get('name'),
+                                                                       data['Scenario'][i+1].get('command')))
+                        if int(data['Scenario'][i].get('time')) > int(data['Scenario'][i+1].get('time')):
+                            time.sleep(int(data['Scenario'][i].get('time')))
+                        else:
+                            time.sleep(int(data['Scenario'][i+1].get('time')))
+                        i += 1
+                    else:
+                        sock_rob_ad.send(data_convert_json_to_str_byte(data['Scenario'][i].get('name'),
+                                                                       data['Scenario'][i].get('command')))
+                        time.sleep(int(data['Scenario'][i].get('time')))
+                    i += 1
+
             except ConnectionAbortedError:
                 logging.error('RCA aborted connection')
-        try:
-            sock_rob_ad.send(b'e|')
+            except Exception as n:
+                print(n)
+                continue
         except ConnectionAbortedError:
-            logging.error('RCA aborted connection')
-        logging.info('Planner stopped')
-        sys.exit(0)
-    try:
-        sock_rob_ad.send(data)
-    except ConnectionAbortedError:
-        logging.error('RCA aborted connection')
+            logging.error('ClientAdapter aborted connection')
+        except ConnectionResetError:
+            logging.error('ClientAdapter reset connection')
+    #TODO добавить сюда отказоустойчивость при отловке какого либо осключения. чтобы он постоянно не спамил названием
+    #TODO этой ошибки. поставить еще один цикл внешний
+    #TODO Логирование
