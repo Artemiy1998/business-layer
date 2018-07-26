@@ -46,7 +46,7 @@ class Switch(object):
                             [sock_id, planer_cmd] = planer_message.split(':')
                             if sock_id not in socket_dict:
                                 continue
-                            socket_dict[sock_id].message_to = planer_cmd+'|'     #only for local testing env
+                            socket_dict[sock_id].message_to = planer_cmd+' '     #only for local testing env
                             socket_dict[sock_id].ready_to_write = True
                     socket_dict[sock_name].ready_to_read = False
                 elif socket_dict[sock_name].ready_to_read and sock_name != 'p':
