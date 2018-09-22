@@ -9,7 +9,6 @@ sock_client.connect(('localhost', 9099))
 sock_client.send(b't')
 
 while True:
-
     data = sock_client.recv(1024)
     messages = data.decode()
     print(messages)

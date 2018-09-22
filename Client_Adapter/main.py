@@ -27,6 +27,7 @@ port_cl_ad = int(config['PORTS']['Port_cl_adapter'])
 port_planner = int(config['PORTS']['Port_planner'])
 port_3d_scene = int(config['PORTS']['Port_3d_scene'])
 listen_var = int(config['PARAMS']['Listen'])
+# end config
 
 address_client = (socket.gethostbyname(socket.gethostname()), port_cl_ad)
 address_3dScene = (host, port_3d_scene)
