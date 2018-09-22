@@ -1,23 +1,26 @@
-from common_thread_object import CommonSocket
-from switch_thread_object import Switch
 import socket
 import logging
 import os
 import configparser
 
+from common_thread_object import CommonSocket
+from switch_thread_object import Switch
+
+
 # logging
 logging.basicConfig(
     format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
     level=logging.DEBUG,
-    filename='RCA.log')
+    filename='RCA.log'
+)
 
-logging.info("Program started")
+logging.info('Program started')
 
 # config
 config_file = os.path.join(
-    os.path.dirname(
-        os.path.dirname(__file__)),
-    'configBL.ini')
+    os.path.dirname(os.path.dirname(__file__)),
+    'configBL.ini'
+)
 config = configparser.ConfigParser()
 config.read(config_file)
 

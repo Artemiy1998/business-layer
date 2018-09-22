@@ -1,6 +1,8 @@
-from random import randint
 import socket
 import time
+
+from random import randint
+
 
 sock_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock_client.connect(('localhost', 9099))
@@ -15,10 +17,8 @@ while True:
     for message in messages:
         if 'e' == message:
             exit()
-        if message == '':
+        if not message:
             continue
-        answer = '\"telega\":\"' + message + '\"|'
+        answer = f'\"telega\":\" {message} \"|'
         time.sleep(1)
         sock_client.send(answer.encode())
-
-

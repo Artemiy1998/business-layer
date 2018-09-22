@@ -1,7 +1,12 @@
 import os
-from datetime import datetime
 import logging
-logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s', level=logging.DEBUG, filename='scene3d.log')
+
+from datetime import datetime
+
+
+logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
+                    level=logging.DEBUG, filename='scene3d.log')
+
 
 def rca_func(client, json_data):
     """
@@ -14,7 +19,9 @@ def rca_func(client, json_data):
         try:
             data = client.recv(1024).decode()
             if data:
-                logging.info('def_rca recv ' + str(datetime.now()).replace(':', ';') + ' : ' + data)
+                logging.info(f'def_rca recv '
+                             f'{str(datetime.now()).replace(":", ";")} '
+                             f': {data}')
 
                 json_data.set(data)
                 if json_data.exit:

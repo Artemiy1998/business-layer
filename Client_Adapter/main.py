@@ -1,11 +1,11 @@
-""" @author Morozov Artemii
+"""
+@author Morozov Artemii
 Documentation for Client Adapter module.
 
 @brief Client Adapter module performs the
 communication of Business Layer with client.
-
-
 """
+
 
 import socket
 import json
@@ -14,11 +14,12 @@ import configparser
 import os
 import logging
 
-# cnfg
+
+# config
 config_file = os.path.join(
-    os.path.dirname(
-        os.path.dirname(__file__)),
-    'configBL.ini')
+    os.path.dirname(os.path.dirname(__file__)),
+    'configBL.ini'
+)
 config = configparser.ConfigParser()
 config.read(config_file)
 host = config['HOSTS']['Main_host']
@@ -47,9 +48,9 @@ logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
 message_error = b'Error, somebody don\'t be responsible, please read logs'
 
 
-def except_func(def_send, socket_component,
-                socket_address, socket_another_component):
-    for i in range(3):
+def except_func(def_send, socket_component, socket_address,
+                socket_another_component):
+    for _ in range(3):
         time.sleep(60)
         try:
             socket_component.connect(socket_address)
@@ -70,15 +71,15 @@ def except_func(def_send, socket_component,
 
 
 def send_planner():
-    """@brief Function sends a request to the planer from the client
-        all parameters used in this function - global variable
-         Function return nothing
+    """
+    @brief Function sends a request to the planer from the client
+    all parameters used in this function - global variable
+    Function return nothing.
     """
     try:
         socket_Planner.send(json.dumps(data_Json).encode())
         print(json.dumps(data_Json))
-        logging.info('send Planner ' + str(json.dumps(data_Json)))
-
+        logging.info(f'send Planner {json.dumps(data_Json)}')
 
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
@@ -88,10 +89,11 @@ def send_planner():
 
 
 def send_3d_scene():
-    """@brief Function sends a request to the scene from the client
-              all parameters used in this function - global variable
-              Function return response frm the scene
-        """
+    """
+    @brief Function sends a request to the scene from the client
+    all parameters used in this function - global variable
+    Function return response frm the scene.
+    """
     try:
         socket_3dScene.send(str(data_Json.get('flag')).encode())
         data_into_3d_scene = socket_3dScene.recv(2048)
@@ -101,7 +103,7 @@ def send_3d_scene():
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
-        logging.info('send Client:Refused, wait 3 minutes' )
+        logging.info('send Client:Refused, wait 3 minutes')
         except_func(send_3d_scene(), socket_3dScene,
                     address_3dScene, socket_Planner)
     except ConnectionResetError:
@@ -127,9 +129,10 @@ while True:
         except Exception:
             print("Disconnect", client_Socket_Address)
             break
-        print(isinstance(data_Json,dict))
+        print(isinstance(data_Json, dict))
         if isinstance(data_Json, dict):
-        #logging.info('From ' + client_Socket_Address[0] + '  recv  ' + data_Json["command"])
+            # logging.info(f'From {client_Socket_Address[0]} '
+            #              f'recv {data_Json["command"]}')
             try:
                 if data_Json.get('flag') == '0':
                     send_planner()
@@ -148,7 +151,7 @@ while True:
                     client_Socket_Conn.close()
                     logging.info('Client disconnect')
                     time.sleep(3)
-                    exit()  # planning crash for test builds
+                    exit()  # Planning crash for test builds.
             except AttributeError:
                 logging.error('not JSON')
         else:

@@ -1,17 +1,22 @@
 import socket
-from threading import Thread
 import logging
+
+from threading import Thread
+
 
 logging.basicConfig(
     format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
     level=logging.DEBUG,
-    filename='RCA.log')
+    filename='RCA.log'
+)
+
 
 class CommonSocket(object):
     def __init__(self, sock, ready_to_read, ready_to_write):
         if not isinstance(sock, socket.socket):
             raise TypeError("not Socket type")
-        if not isinstance(ready_to_read, bool) or not isinstance(ready_to_write, bool):
+        if not isinstance(ready_to_read, bool) or \
+           not isinstance(ready_to_write, bool):
             raise TypeError("not Bool type")
         self.sock = sock
         self.sock.setblocking(0)
@@ -19,8 +24,10 @@ class CommonSocket(object):
         logging.info(self.who)
         self.ready_to_read = ready_to_read
         self.ready_to_write = ready_to_write
-        self.thread_to_read = Thread(name=self.who + '_read', target=self.read_func)
-        self.thread_to_write = Thread(name=self.who + '_write', target=self.write_func)
+        self.thread_to_read = Thread(name=f'{self.who}_read',
+                                     target=self.read_func)
+        self.thread_to_write = Thread(name=f'{self.who}_write',
+                                      target=self.write_func)
         self.message_from = ''
         self.message_to = ''
         self.exit = False
@@ -42,16 +49,16 @@ class CommonSocket(object):
         while True:
             if not self.ready_to_read:
                 self.message_from = self.recv()
-                if self.message_from != '':
-                    logging.info(self.who + ' : ' + self.message_from)
+                if self.message_from:
+                    logging.info(f'{self.who} : {self.message_from}')
                     self.ready_to_read = True
             if self.exit:
-                 break
+                break
 
     def write_func(self):
         while True:
             if self.ready_to_write:
-                logging.info(self.who + ' : ' + self.message_to)
+                logging.info(f'{self.who} : {self.message_to}')
                 try:
                     self.sock.send(self.message_to.encode())
                     self.ready_to_write = False
@@ -66,7 +73,7 @@ class CommonSocket(object):
         self.thread_to_read.start()
 
     def close(self):
-        logging.debug(self.who + ' exit')
+        logging.debug(f'{self.who} exit')
         self.ready_to_write = False
         self.ready_to_read = False
         self.thread_to_read.join()
