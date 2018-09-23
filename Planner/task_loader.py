@@ -3,7 +3,7 @@ import json
 
 class TaskLoader:
 
-    def __init__(self, file_name='task.json'):
+    def __init__(self, file_name='tasks.json'):
         """
         Constructor which opens file with tasks and parses it.
         :param file_name: str, optional(default='commands.json').

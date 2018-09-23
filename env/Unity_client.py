@@ -117,9 +117,10 @@ def create_command_from_input():
     return data_to_send
 
 
-def send_data_to_cunit(data_to_send):
+def send_data(data_to_send):
     data_json = json.dumps(data_to_send)
     sock.send(data_json.encode())
+    print('Sent data:', data_json)
 
 
 def send_unparallel_simple_tasks_to_cunit():
@@ -131,7 +132,7 @@ def send_unparallel_simple_tasks_to_cunit():
         energy=[3, 3, 3, 3],
         commands=['cmd1', 'cmd2', 'cmd3', 'cmd4']
     )
-    send_data_to_cunit(data_to_send)
+    send_data(data_to_send)
 
 
 def send_parallel_simple_tasks_to_cunit():
@@ -143,25 +144,25 @@ def send_parallel_simple_tasks_to_cunit():
         energy=[3, 3, 3, 3],
         commands=['cmd5', 'cmd6', 'cmd7', 'cmd8']
     )
-    send_data_to_cunit(data_to_send)
+    send_data(data_to_send)
 
 
 def send_unparallel_complex_tasks_to_cunit():
-    data_to_send = create_complex_parallel_task(
+    data_to_send = create_complex_unparallel_task(
         flag='0',
         task_name='moving_difficult',
-        commands=['cmd1', 'cmd2', 'cmd3', 'cmd4']
+        commands=['moving', 'moving']
     )
-    send_data_to_cunit(data_to_send)
+    send_data(data_to_send)
 
 
 def send_parallel_complex_tasks_to_cunit():
     data_to_send = create_complex_parallel_task(
         flag='0',
         task_name='moving_difficult2',
-        commands=['cmd5', 'cmd6', 'cmd7', 'cmd8']
+        commands=['moving_together', 'moving_together']
     )
-    send_data_to_cunit(data_to_send)
+    send_data(data_to_send)
 
 
 def send_data_to_3d_scene():

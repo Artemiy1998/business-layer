@@ -126,7 +126,6 @@ while True:
         print('Command iteration:', count)
         try:
             data = client_Socket_Conn.recv(1024).decode()
-            print(data)
             data_Json = json.loads(data)
         except ConnectionResetError:
             print('Disconnect', client_Socket_Address)

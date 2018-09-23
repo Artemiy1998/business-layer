@@ -81,23 +81,23 @@ def data_convert_json_to_str_byte(name, cmd):
 
 def process_simple_task(task, task_loader, save_task=True):
     if save_task:
-        task_loader.save_command(data['Scenario'])
+        task_loader.save_task(task)
 
     i = 0
-    while i != len(data['Scenario']):
-        time_1 = int(data['Scenario'][i].get('time'))
+    while i != len(task['Scenario']):
+        time_1 = int(task['Scenario'][i].get('time'))
 
-        if data['Scenario'][i].get('parallel') == 'True':
+        if task['Scenario'][i].get('parallel') == 'True':
             sock_rob_ad.send(data_convert_json_to_str_byte(
-                data['Scenario'][i].get('name'),
-                data['Scenario'][i].get('command')
+                task['Scenario'][i].get('name'),
+                task['Scenario'][i].get('command')
             ))
             sock_rob_ad.send(data_convert_json_to_str_byte(
-                data['Scenario'][i + 1].get('name'),
-                data['Scenario'][i + 1].get('command')
+                task['Scenario'][i + 1].get('name'),
+                task['Scenario'][i + 1].get('command')
             ))
 
-            time_2 = int(data['Scenario'][i + 1].get('time'))
+            time_2 = int(task['Scenario'][i + 1].get('time'))
             if time_1 > time_2:
                 time.sleep(time_1)
             else:
@@ -105,8 +105,8 @@ def process_simple_task(task, task_loader, save_task=True):
             i += 1
         else:
             sock_rob_ad.send(data_convert_json_to_str_byte(
-                data['Scenario'][i].get('name'),
-                data['Scenario'][i].get('command')
+                task['Scenario'][i].get('name'),
+                task['Scenario'][i].get('command')
             ))
             time.sleep(time_1)
         i += 1
@@ -114,9 +114,10 @@ def process_simple_task(task, task_loader, save_task=True):
 
 def process_complex_task(task, task_loader):
     i = 0
-    while i != len(data['Scenario']):
-        task = task_loader.load_task(data['Scenario'][i].get('command'))
-        process_simple_task(task, task_loader, save_task=False)
+    while i != len(task['Scenario']):
+        print('Task name:', task['Scenario'][i].get('command'))
+        simple_task = task_loader.load_task(task['Scenario'][i].get('command'))
+        process_simple_task(simple_task, task_loader, save_task=False)
         i += 1
 
 
