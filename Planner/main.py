@@ -84,10 +84,12 @@ def process_simple_task(task, task_loader, save_task=True):
         task_loader.save_task(task)
 
     i = 0
-    while i != len(task['Scenario']):
+    command_number = len(task['Scenario'])
+    while i < command_number:
         time_1 = int(task['Scenario'][i].get('time'))
 
-        if task['Scenario'][i].get('parallel') == 'True':
+        if task['Scenario'][i].get('parallel') == 'True' and \
+           i + 1 < command_number:
             sock_rob_ad.send(data_convert_json_to_str_byte(
                 task['Scenario'][i].get('name'),
                 task['Scenario'][i].get('command')
@@ -98,10 +100,7 @@ def process_simple_task(task, task_loader, save_task=True):
             ))
 
             time_2 = int(task['Scenario'][i + 1].get('time'))
-            if time_1 > time_2:
-                time.sleep(time_1)
-            else:
-                time.sleep(time_2)
+            time.sleep(max(time_1, time_2))
             i += 1
         else:
             sock_rob_ad.send(data_convert_json_to_str_byte(

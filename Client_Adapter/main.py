@@ -81,10 +81,10 @@ def send_planner():
     Function return nothing.
     """
     try:
-        socket_Planner.send(json.dumps(data_Json).encode())
-        print(json.dumps(data_Json))
-        logging.info(f'send Planner {json.dumps(data_Json)}')
-
+        data_to_send = json.dumps(data_Json)
+        socket_Planner.send(data_to_send.encode())
+        print(data_to_send)
+        logging.info(f'send Planner {data_to_send}')
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
