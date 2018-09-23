@@ -117,8 +117,13 @@ def create_command_from_input():
     return data_to_send
 
 
-def send_data_to_cunit():
-    data_to_send = create_simple_parallel_task(
+def send_data_to_cunit(data_to_send):
+    data_json = json.dumps(data_to_send)
+    sock.send(data_json.encode())
+
+
+def send_unparallel_simple_tasks_to_cunit():
+    data_to_send = create_simple_unparallel_task(
         flag='0',
         task_name='moving',
         robot_names=['fanuc', 'telega', 'fanuc', 'telega'],
@@ -126,8 +131,37 @@ def send_data_to_cunit():
         energy=[3, 3, 3, 3],
         commands=['cmd1', 'cmd2', 'cmd3', 'cmd4']
     )
-    data_json = json.dumps(data_to_send)
-    sock.send(data_json.encode())
+    send_data_to_cunit(data_to_send)
+
+
+def send_parallel_simple_tasks_to_cunit():
+    data_to_send = create_simple_parallel_task(
+        flag='0',
+        task_name='moving_together',
+        robot_names=['fanuc', 'telega', 'fanuc', 'telega'],
+        tasks_time=[3, 1, 3, 3],
+        energy=[3, 3, 3, 3],
+        commands=['cmd5', 'cmd6', 'cmd7', 'cmd8']
+    )
+    send_data_to_cunit(data_to_send)
+
+
+def send_unparallel_complex_tasks_to_cunit():
+    data_to_send = create_complex_parallel_task(
+        flag='0',
+        task_name='moving_difficult',
+        commands=['cmd1', 'cmd2', 'cmd3', 'cmd4']
+    )
+    send_data_to_cunit(data_to_send)
+
+
+def send_parallel_complex_tasks_to_cunit():
+    data_to_send = create_complex_parallel_task(
+        flag='0',
+        task_name='moving_difficult2',
+        commands=['cmd5', 'cmd6', 'cmd7', 'cmd8']
+    )
+    send_data_to_cunit(data_to_send)
 
 
 def send_data_to_3d_scene():
@@ -141,6 +175,8 @@ def send_data_to_3d_scene():
             {
                 'parallel': str(parallel),
                 'name': str(name),
+                'time': '',
+                'energy': '',
                 'command': str(cmd)
             }
         ]
@@ -156,11 +192,16 @@ port_cl_adapter = 9090
 sock.connect(('localhost', port_cl_adapter))
 
 inp = ''
+delay = 5
 while inp != '0':
-    send_data_to_cunit()
-    time.sleep(5)
+    send_unparallel_simple_tasks_to_cunit()
+    send_parallel_simple_tasks_to_cunit()
+    time.sleep(delay)
+    send_unparallel_complex_tasks_to_cunit()
+    send_parallel_complex_tasks_to_cunit()
+    time.sleep(delay)
 
-    send_data_to_3d_scene()
+    # send_data_to_3d_scene()
+    time.sleep(delay * 0.01)
 
-    time.sleep(0.04)
     inp = input('Enter some key for continue and 0 for exit: ')
