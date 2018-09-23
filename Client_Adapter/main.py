@@ -1,10 +1,10 @@
-'''
+"""
 @author Morozov Artemii
 Documentation for Client Adapter module.
 
 @brief Client Adapter module performs the
 communication of Business Layer with client.
-'''
+"""
 
 
 import socket
@@ -75,11 +75,11 @@ def except_func(def_send, socket_component, socket_address,
 
 
 def send_planner():
-    '''
+    """
     @brief Function sends a request to the planer from the client
     all parameters used in this function - global variable
     Function return nothing.
-    '''
+    """
     try:
         socket_Planner.send(json.dumps(data_Json).encode())
         print(json.dumps(data_Json))
@@ -93,11 +93,11 @@ def send_planner():
 
 
 def send_3d_scene():
-    '''
+    """
     @brief Function sends a request to the scene from the client
     all parameters used in this function - global variable
     Function return response frm the scene.
-    '''
+    """
     try:
         socket_3dScene.send(str(data_Json.get('flag')).encode())
         data_into_3d_scene = socket_3dScene.recv(2048)

@@ -3,8 +3,9 @@ import json
 import time
 
 
-def _create_task(flag=0, task_name='moving', parallel=False, robot_names=['f'],
-                 tasks_time=[3], energy=[3], commands=['m 0 0 0 0 0 0']):
+def _create_task(flag='0', task_name='moving', parallel=False,
+                 robot_names=('f',), tasks_time=(3,), energy=(3,),
+                 commands=('m 0 0 0 0 0 0',)):
     data_to_send = {
         'flag': str(flag),
         'name': str(task_name),
@@ -16,16 +17,16 @@ def _create_task(flag=0, task_name='moving', parallel=False, robot_names=['f'],
                 'energy': str(ener),
                 'command': str(command)
             } for robot_name, task_time, ener, command in zip(robot_names,
-                                                              task_name,
+                                                              tasks_time,
                                                               energy, commands)
         ]
     }
     return data_to_send
 
 
-def create_simple_unparallel_task(flag=0, task_name='moving', robot_names=['f'],
-                                  tasks_time=[3], energy=[3],
-                                  commands=['m 0 0 0 0 0 0']):
+def create_simple_unparallel_task(flag='0', task_name='moving',
+                                  robot_names=('f',), tasks_time=(3,),
+                                  energy=(3,), commands=('m 0 0 0 0 0 0',)):
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
                                 parallel=False,
@@ -36,9 +37,9 @@ def create_simple_unparallel_task(flag=0, task_name='moving', robot_names=['f'],
     return data_to_send
 
 
-def create_simple_parallel_task(flag=0, task_name='moving_together',
-                                robot_names=['f'], tasks_time=[3], energy=[3],
-                                commands=['m 10 0 0 0 0 0']):
+def create_simple_parallel_task(flag='0', task_name='moving_together',
+                                robot_names=('f',), tasks_time=(3,),
+                                energy=(3,), commands=('m 10 0 0 0 0 0',)):
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
                                 parallel=True,
@@ -56,8 +57,8 @@ def create_simple_parallel_task(flag=0, task_name='moving_together',
     return data_to_send
 
 
-def create_complex_unparallel_task(flag=0, task_name='moving_difficult',
-                                   commands=['moving']):
+def create_complex_unparallel_task(flag='0', task_name='moving_difficult',
+                                   commands=('moving',)):
     empty_list = [''] * len(commands)
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
@@ -69,8 +70,8 @@ def create_complex_unparallel_task(flag=0, task_name='moving_difficult',
     return data_to_send
 
 
-def create_complex_parallel_task(flag=0, task_name='moving_difficult2',
-                                 commands=['moving']):
+def create_complex_parallel_task(flag='0', task_name='moving_difficult2',
+                                 commands=('moving',)):
     empty_list = [''] * len(commands)
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
@@ -118,7 +119,7 @@ def create_command_from_input():
 
 def send_data_to_cunit():
     data_to_send = create_simple_parallel_task(
-        flag=0,
+        flag='0',
         task_name='moving',
         robot_names=['fanuc', 'telega', 'fanuc', 'telega'],
         tasks_time=[3, 1, 3, 3],
