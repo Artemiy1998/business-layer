@@ -1,9 +1,9 @@
-"""
+'''
 @author Artemii Morozov and Urazov Dilshod
 Documentation for Planner module
 
 @brief Now planner do nothing but transfer
-"""
+'''
 
 
 import os
@@ -81,7 +81,7 @@ count = 0
 while True:
     conn, addr = sock_serv.accept()
     while True:
-        print(count)
+        print('Command iteration:', count)
         i = 0
         try:
             message = conn.recv(2048).decode()
@@ -103,7 +103,7 @@ while True:
                 sys.exit(0)
             try:
                 data = json.loads(message)
-                while i != (len(data['Scenario'])):
+                while i != len(data['Scenario']):
                     if data['Scenario'][i].get('parallel') == 'True':
                         sock_rob_ad.send(data_convert_json_to_str_byte(
                             data['Scenario'][i].get('name'),
@@ -133,7 +133,7 @@ while True:
                 # logging.error('RCA aborted connection')
                 pass
             except Exception as e:
-                print(e)
+                print('Exception:', e)
                 continue
         except ConnectionAbortedError:
             # logging.error('ClientAdapter aborted connection')

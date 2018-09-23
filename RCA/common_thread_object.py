@@ -19,7 +19,7 @@ class CommonSocket(object):
            not isinstance(ready_to_write, bool):
             raise TypeError("not Bool type")
         self.sock = sock
-        self.sock.setblocking(0)
+        self.sock.setblocking(False)
         self.who = sock.recv(1024).decode()
         logging.info(self.who)
         self.ready_to_read = ready_to_read

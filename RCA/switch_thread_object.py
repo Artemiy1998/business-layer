@@ -1,6 +1,5 @@
 import socket
 import logging
-import os
 import time
 
 from threading import Thread
@@ -44,7 +43,7 @@ class Switch(object):
                             if planer_message == 'e':
                                 time.sleep(5)
                                 logging.info('exit')
-                                os._exit(0)
+                                exit(0)
                             if not planer_message:
                                 continue
                             [sock_id, planer_cmd] = planer_message.split(':')
