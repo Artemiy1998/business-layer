@@ -2,12 +2,10 @@ import socket
 import json
 import time
 
-from random import randint
-from datetime import datetime
-
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.connect(('localhost', 9090))
+port_cl_adapter = 9090
+sock.connect(('localhost', port_cl_adapter))
 
 while True:
     # flag = input('flag: ')

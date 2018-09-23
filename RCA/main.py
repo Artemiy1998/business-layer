@@ -34,7 +34,7 @@ port_rca = int(config['PORTS']['Port_rca'])
 switch = Switch((host, port_3d_scene))
 switch.run()
 serv_sock = socket.socket()
-serv_sock.setblocking(0)
+serv_sock.setblocking(False)
 serv_sock.bind((host, port_rca))
 serv_sock.listen(listen)
 

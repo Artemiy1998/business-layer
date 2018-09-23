@@ -1,4 +1,3 @@
-import os
 import logging
 
 
@@ -24,11 +23,14 @@ def client_adapter_func(client, json_data):
             if message == 'e':
                 json_data.exit = True
                 logging.info('exit')
-                os._exit(0)
+                exit(0)
         except ConnectionRefusedError:
-            logging.error('Planner disconnected. ConnectionRefusedError')
+            # logging.error('Planner disconnected. ConnectionRefusedError')
+            pass
         except ConnectionAbortedError:
-            logging.error('Planner disconnected. ConnectionAbortedError')
+            # logging.error('Planner disconnected. ConnectionAbortedError')
+            pass
         except ConnectionResetError:
-            logging.error('Planner disconnected. ConnectionResetError')
-    client.close()
+            # logging.error('Planner disconnected. ConnectionResetError')
+            pass
+    # client.close()

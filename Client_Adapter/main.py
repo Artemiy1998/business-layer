@@ -29,7 +29,10 @@ port_3d_scene = int(config['PORTS']['Port_3d_scene'])
 listen_var = int(config['PARAMS']['Listen'])
 # end config
 
-address_client = (socket.gethostbyname(socket.gethostname()), port_cl_ad)
+# TODO: fix connection to client adapter because
+# localhost != socket.gethostbyname(socket.gethostname())!
+# print(socket.gethostbyname(socket.gethostname()))
+address_client = ('localhost', port_cl_ad)
 address_3dScene = (host, port_3d_scene)
 address_Planner = (host, port_planner)
 dict_Name = {'fanuc': 'f', 'telega': 't'}
@@ -113,6 +116,7 @@ def send_3d_scene():
         logging.info('send Client: Reset, wait 3 min')
         except_func(send_3d_scene(), socket_3dScene,
                     address_3dScene, socket_Planner)
+
 
 count = 0
 while True:

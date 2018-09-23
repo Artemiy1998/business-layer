@@ -1,8 +1,6 @@
 import socket
 import time
 
-from random import randint
-
 
 sock_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock_client.connect(('localhost', 9099))

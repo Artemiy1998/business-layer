@@ -13,7 +13,6 @@ import configparser
 import logging
 import json
 import time
-import math
 
 
 # TODO: при отключении клиент адаптера на CUnit, которому была адресована
@@ -73,7 +72,7 @@ def get_scene():
 
 
 def data_convert_json_to_str_byte(name, cmd):
-    data_str_byte = (f'{dict_Name[name]}: {cmd}|').encode()
+    data_str_byte = f'{dict_Name[name]}: {cmd}|'.encode()
     print(data_str_byte)
     return data_str_byte
 
@@ -131,14 +130,17 @@ while True:
                     i += 1
 
             except ConnectionAbortedError:
-                logging.error('RCA aborted connection')
+                # logging.error('RCA aborted connection')
+                pass
             except Exception as e:
                 print(e)
                 continue
         except ConnectionAbortedError:
-            logging.error('ClientAdapter aborted connection')
+            # logging.error('ClientAdapter aborted connection')
+            pass
         except ConnectionResetError:
-            logging.error('ClientAdapter reset connection')
+            # logging.error('ClientAdapter reset connection')
+            pass
 
     # TODO: добавить сюда отказоустойчивость при отловке какого либо
     # осключения. чтобы он постоянно не спамил названием этой ошибки.
