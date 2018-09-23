@@ -14,6 +14,8 @@ import logging
 import json
 import time
 
+from task_loader import TaskLoader
+
 
 # TODO: при отключении клиент адаптера на CUnit, которому была адресована
 # последняя команда, начинается спам этой командой, так как в беск. цикле
@@ -77,12 +79,53 @@ def data_convert_json_to_str_byte(name, cmd):
     return data_str_byte
 
 
+def process_simple_task(task, task_loader, save_task=True):
+    if save_task:
+        task_loader.save_command(data['Scenario'])
+
+    i = 0
+    while i != len(data['Scenario']):
+        time_1 = int(data['Scenario'][i].get('time'))
+
+        if data['Scenario'][i].get('parallel') == 'True':
+            sock_rob_ad.send(data_convert_json_to_str_byte(
+                data['Scenario'][i].get('name'),
+                data['Scenario'][i].get('command')
+            ))
+            sock_rob_ad.send(data_convert_json_to_str_byte(
+                data['Scenario'][i + 1].get('name'),
+                data['Scenario'][i + 1].get('command')
+            ))
+
+            time_2 = int(data['Scenario'][i + 1].get('time'))
+            if time_1 > time_2:
+                time.sleep(time_1)
+            else:
+                time.sleep(time_2)
+            i += 1
+        else:
+            sock_rob_ad.send(data_convert_json_to_str_byte(
+                data['Scenario'][i].get('name'),
+                data['Scenario'][i].get('command')
+            ))
+            time.sleep(time_1)
+        i += 1
+
+
+def process_complex_task(task, task_loader):
+    i = 0
+    while i != len(data['Scenario']):
+        task = task_loader.load_task(data['Scenario'][i].get('command'))
+        process_simple_task(task, task_loader, save_task=False)
+        i += 1
+
+
+taskloader = TaskLoader()
 count = 0
 while True:
     conn, addr = sock_serv.accept()
     while True:
         print('Command iteration:', count)
-        i = 0
         try:
             message = conn.recv(2048).decode()
             if message:
@@ -103,31 +146,11 @@ while True:
                 sys.exit(0)
             try:
                 data = json.loads(message)
-                while i != len(data['Scenario']):
-                    if data['Scenario'][i].get('parallel') == 'True':
-                        sock_rob_ad.send(data_convert_json_to_str_byte(
-                            data['Scenario'][i].get('name'),
-                            data['Scenario'][i].get('command')
-                        ))
-                        sock_rob_ad.send(data_convert_json_to_str_byte(
-                            data['Scenario'][i + 1].get('name'),
-                            data['Scenario'][i + 1].get('command')
-                        ))
-                        if int(data['Scenario'][i].get('time')) > \
-                           int(data['Scenario'][i + 1].get('time')):
-                            time.sleep(int(data['Scenario'][i].get('time')))
-                        else:
-                            time.sleep(
-                                int(data['Scenario'][i + 1].get('time'))
-                            )
-                        i += 1
-                    else:
-                        sock_rob_ad.send(data_convert_json_to_str_byte(
-                            data['Scenario'][i].get('name'),
-                            data['Scenario'][i].get('command')
-                        ))
-                        time.sleep(int(data['Scenario'][i].get('time')))
-                    i += 1
+                is_simple = bool(data['Scenario'][0].get('name'))
+                if is_simple:
+                    process_simple_task(data, taskloader)
+                else:
+                    process_complex_task(data, taskloader)
 
             except ConnectionAbortedError:
                 # logging.error('RCA aborted connection')
@@ -141,6 +164,7 @@ while True:
         except ConnectionResetError:
             # logging.error('ClientAdapter reset connection')
             pass
+        count += 1
 
     # TODO: добавить сюда отказоустойчивость при отловке какого либо
     # осключения. чтобы он постоянно не спамил названием этой ошибки.
