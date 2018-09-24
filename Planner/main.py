@@ -120,43 +120,64 @@ def process_complex_task(task, task_loader):
         i += 1
 
 
+def receive(sock):
+    total_data = b''
+    try:
+        while True:
+            recv_data = sock.recv(1024)
+            if recv_data:
+                total_data += recv_data
+            else:
+                break
+    except Exception:
+        pass
+    return total_data.decode()
+
+
 taskloader = TaskLoader()
 count = 0
 while True:
     conn, addr = sock_serv.accept()
+    conn.setblocking(False)
     while True:
-        print('Command iteration:', count)
         try:
-            message = conn.recv(1024).decode()
-            if message:
-                    logging.info(message)
-            if message == 'e':
-                for robot in robo_dict:
-                    message = f'{robot}: e|'
+            messages = receive(conn)
+            if messages:
+                logging.info(messages)
+                print('Command iteration:', count)
+            else:
+                continue
+
+            messages = messages.split('|')
+            for message in messages[:-1]:
+                if message == 'e':
+                    for robot in robo_dict:
+                        message = f'{robot}: e|'
+                        try:
+                            sock_rob_ad.send(message.encode())
+                            time.sleep(1)
+                        except ConnectionAbortedError:
+                            logging.error('RCA aborted connection')
                     try:
-                        sock_rob_ad.send(message.encode())
-                        time.sleep(1)
+                        sock_rob_ad.send(b'e|')
                     except ConnectionAbortedError:
                         logging.error('RCA aborted connection')
+                    logging.info('Planner stopped')
+                    sys.exit(0)
                 try:
-                    sock_rob_ad.send(b'e|')
+                    print(message)
+                    data = json.loads(message)
+                    is_simple = bool(data['Scenario'][0].get('name'))
+                    if is_simple:
+                        process_simple_task(data, taskloader)
+                    else:
+                        process_complex_task(data, taskloader)
                 except ConnectionAbortedError:
-                    logging.error('RCA aborted connection')
-                logging.info('Planner stopped')
-                sys.exit(0)
-            try:
-                data = json.loads(message)
-                is_simple = bool(data['Scenario'][0].get('name'))
-                if is_simple:
-                    process_simple_task(data, taskloader)
-                else:
-                    process_complex_task(data, taskloader)
-            except ConnectionAbortedError:
-                # logging.error('RCA aborted connection')
-                pass
-            except Exception as e:
-                print('Exception:', e)
-                continue
+                    # logging.error('RCA aborted connection')
+                    pass
+                except Exception as e:
+                    print('Exception:', e)
+                    continue
         except ConnectionAbortedError:
             # logging.error('ClientAdapter aborted connection')
             pass

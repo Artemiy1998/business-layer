@@ -46,7 +46,6 @@ while True:
         logging.info(f'{who_is_it} connect')
         rca_thread.start()
         logging.info(f'Thread for {who_is_it} start')
-
     elif who_is_it == 'ClAd':
         client_adapter_thread = Thread(target=client_adapter_func,
                                        args=(client, json_data))

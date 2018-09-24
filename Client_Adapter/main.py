@@ -83,13 +83,14 @@ def send_planner():
     """
     try:
         data_to_send = json.dumps(data_Json)
+        data_to_send = add_separator(data_to_send)
         socket_Planner.send(data_to_send.encode())
         print(data_to_send)
         logging.info(f'send Planner {data_to_send}')
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
-        except_func(send_planner(), socket_Planner,
+        except_func(send_planner, socket_Planner,
                     address_Planner, socket_3dScene)
 
 
@@ -109,14 +110,19 @@ def send_3d_scene():
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
         logging.info('send Client:Refused, wait 3 minutes')
-        except_func(send_3d_scene(), socket_3dScene,
+        except_func(send_3d_scene, socket_3dScene,
                     address_3dScene, socket_Planner)
     except ConnectionResetError:
         logging.error('ConnectionResetError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
         logging.info('send Client: Reset, wait 3 min')
-        except_func(send_3d_scene(), socket_3dScene,
+        except_func(send_3d_scene, socket_3dScene,
                     address_3dScene, socket_Planner)
+
+
+def add_separator(message):
+    message += '|'
+    return message
 
 
 count = 0

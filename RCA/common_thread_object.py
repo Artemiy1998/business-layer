@@ -33,17 +33,17 @@ class CommonSocket:
         self.exit = False
 
     def recv(self):
-        total_data = ''
+        total_data = b''
         try:
             while True:
                 data = self.sock.recv(1024)
                 if data:
-                    total_data += data.decode()
+                    total_data += data
                 else:
                     break
         except Exception:
             pass
-        return total_data
+        return total_data.decode()
 
     def read_func(self):
         while True:
