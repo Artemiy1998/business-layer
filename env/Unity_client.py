@@ -194,8 +194,8 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port_cl_adapter = 9090
 sock.connect(('localhost', port_cl_adapter))
 
-inp = ''
 delay = 5
+inp = input('Enter some key for continue or 0 for exit: ')
 while inp != '0':
     send_unparallel_simple_tasks_to_cunit()
     send_parallel_simple_tasks_to_cunit()
@@ -207,4 +207,4 @@ while inp != '0':
     # send_data_to_3d_scene()
     time.sleep(delay * 0.01)
 
-    inp = input('Enter some key for continue and 0 for exit: ')
+    inp = input('Enter some key for continue or 0 for exit: ')
