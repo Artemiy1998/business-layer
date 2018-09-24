@@ -31,7 +31,8 @@ listen_var = int(config['PARAMS']['Listen'])
 # end config
 
 # TODO: fix connection to client adapter because
-# localhost != socket.gethostbyname(socket.gethostname())!
+# localhost != socket.gethostbyname(socket.gethostname())
+
 # print(socket.gethostbyname(socket.gethostname()))
 address_client = ('localhost', port_cl_ad)
 address_3dScene = (host, port_3d_scene)

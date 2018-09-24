@@ -7,7 +7,6 @@ from common_thread_object import CommonSocket
 from switch_thread_object import Switch
 
 
-# logging
 logging.basicConfig(
     format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
     level=logging.DEBUG,

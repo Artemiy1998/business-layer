@@ -8,28 +8,28 @@
         "name": "fanuc",
         "time": "3",
         "energy": "3",
-        "command": "cmd1"
+        "command": "m 10 0 0 0 0 0"
       },
       {
         "parallel": "False",
         "name": "telega",
         "time": "1",
         "energy": "3",
-        "command": "cmd2"
+        "command": "m 10 10 0 0 0 0"
       },
       {
         "parallel": "False",
         "name": "fanuc",
         "time": "3",
         "energy": "3",
-        "command": "cmd3"
+        "command": "m 20 10 0 0 0 0"
       },
       {
         "parallel": "False",
         "name": "telega",
         "time": "3",
         "energy": "3",
-        "command": "cmd4"
+        "command": "m 0 0 0 0 0 0"
       }
     ]
   },
@@ -44,28 +44,28 @@
         "name": "fanuc",
         "time": "3",
         "energy": "3",
-        "command": "cmd5"
+        "command": "m 40 10 0 0 0 0"
       },
       {
         "parallel": "True",
         "name": "telega",
         "time": "1",
         "energy": "3",
-        "command": "cmd6"
+        "command": "m 60 15 0 0 0 0"
       },
       {
         "parallel":"True",
         "name": "fanuc",
         "time": "3",
         "energy": "3",
-        "command": "cmd7"
+        "command": "m 80 20 0 0 0 0"
       },
       {
         "parallel": "False",
         "name": "telega",
         "time": "3",
         "energy": "3",
-        "command": "cmd8"
+        "command": "m 90 0 25 0 0 0"
       }
     ]
   }

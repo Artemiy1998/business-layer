@@ -22,7 +22,6 @@ from task_loader import TaskLoader
 # вызывается исключение, и так снова и снова.
 
 
-# logging
 logging.basicConfig(
     format=u' %(levelname)-8s [%(asctime)s]  %(message)s',
     level=logging.DEBUG,
@@ -149,7 +148,7 @@ while True:
                 continue
 
             messages = messages.split('|')
-            for message in messages[:-1]:
+            for message in messages[:-1]:  # Skip last empty list.
                 if message == 'e':
                     for robot in robo_dict:
                         message = f'{robot}: e|'
