@@ -19,9 +19,10 @@ def rca_func(client, json_data):
         try:
             data = client.recv(1024).decode()
             if data:
-                logging.info(f'def_rca recv '
-                             f'{str(datetime.now()).replace(":", ";")} '
-                             f': {data}')
+                msg = (f'def_rca recv {str(datetime.now()).replace(":", ";")} '
+                       f': {data}')
+                logging.info(msg)
+                print(msg)
 
                 json_data.add(data)
                 if json_data.exit:

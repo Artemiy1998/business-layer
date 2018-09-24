@@ -17,11 +17,13 @@ def planner_func(client, json_data):
         data = json_data.get()
         try:
             message = client.recv(1024).decode()
-
             if message == "get_scene":
                 logging.info(f'def_planer recv {message}')
+                print(f'def_planer recv {message}')
+
                 client.send(data.encode())
-                logging.info('planner send')
+                logging.info(f'planner send {data}')
+                print(f'planner send {data}')
             if json_data.exit:
                 logging.info('exit')
                 sys.exit(0)

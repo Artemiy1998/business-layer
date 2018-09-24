@@ -65,7 +65,7 @@ def except_func(def_send, socket_component, socket_address,
         except ConnectionRefusedError:
             pass
     client_Socket_Conn.send(message_error)
-    logging.info('send Client ' + message_error.decode())
+    logging.info(f'send Client {message_error.decode()}')
     socket_another_component.send(b'e')
 
     socket_component.close()

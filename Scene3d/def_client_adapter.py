@@ -14,13 +14,16 @@ def client_adapter_func(client, json_data):
     :return:
     """
     while True:
+        data = json_data.get()
         try:
             message = client.recv(1024).decode()
             if message == '1':
                 logging.info(f'def_client_adapter {message}')
-                data = json_data.get()
+                print(f'def_client_adapter {message}')
+
                 client.send(data.encode())
-                logging.info('client send')
+                logging.info(f'client send {data}')
+                print(f'client send {data}')
             if message == 'e':
                 json_data.exit = True
                 logging.info('exit')

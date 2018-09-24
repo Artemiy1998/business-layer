@@ -4,7 +4,8 @@ import json
 # @synchronized
 class Scene3Ddata:
     # @synchronized
-    def __init__(self):
+    def __init__(self, filename='data.json'):
+        self._filename = filename
         self.data = {}
         self.exit = False
 
@@ -16,6 +17,8 @@ class Scene3Ddata:
             try:
                 temp_json = json.loads(f'{item}')
                 self.data.update(temp_json)
+                with open(self._filename, 'w', encoding='utf-8') as outfile:
+                    json.dump(self.data, outfile)
             except Exception:
                 pass
 

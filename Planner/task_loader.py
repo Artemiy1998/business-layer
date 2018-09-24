@@ -3,14 +3,14 @@ import json
 
 class TaskLoader:
 
-    def __init__(self, file_name='tasks.json'):
+    def __init__(self, filename='tasks.json'):
         """
         Constructor which opens file with tasks and parses it.
-        :param file_name: str, optional(default='commands.json').
+        :param filename: str, optional(default='commands.json').
             Name of the json file with tasks.
         """
-        self._file_name = file_name
-        with open(file_name, 'r', encoding='utf-8') as infile:
+        self._filename = filename
+        with open(filename, 'r', encoding='utf-8') as infile:
             self._parsed_json_tasks = json.loads(infile.read())
 
     def __getitem__(self, item):
@@ -34,5 +34,5 @@ class TaskLoader:
             self._parsed_json_tasks[task['name']] = task
 
             # TODO: need to avoid rewriting all file but append at the end.
-            with open(self._file_name, 'w', encoding='utf-8') as outfile:
+            with open(self._filename, 'w', encoding='utf-8') as outfile:
                 json.dump(self._parsed_json_tasks, outfile)
