@@ -13,6 +13,7 @@ import time
 import configparser
 import os
 import logging
+import sys
 
 
 # config
@@ -71,7 +72,7 @@ def except_func(def_send, socket_component, socket_address,
     client_Socket_Conn.close()
     socket_client.close()
     logging.info('3d Scene, Client Adapter, Client close')
-    exit()
+    sys.exit()
 
 
 def send_planner():
@@ -139,7 +140,9 @@ while True:
             #              f'recv {data_Json["command"]}')
             try:
                 if data_Json.get('flag') == '0':
-                    send_planner()
+                    response = socket_Planner.recv(128).decode()
+                    if response == 'ready':
+                        send_planner()
                 elif data_Json.get('flag') == '1':
                     data_Send_Byte = send_3d_scene()
                     client_Socket_Conn.send(data_Send_Byte)
@@ -155,7 +158,7 @@ while True:
                     client_Socket_Conn.close()
                     logging.info('Client disconnect')
                     time.sleep(3)
-                    exit()  # Planning crash for test builds.
+                    sys.exit()  # Planning crash for test builds.
             except AttributeError:
                 logging.error('not JSON')
         else:

@@ -1,5 +1,6 @@
 import socket
 import time
+import sys
 
 
 sock_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -13,7 +14,7 @@ while True:
     messages = messages.split('|')
     for message in messages:
         if 'e' == message:
-            exit()
+            sys.exit()
         if not message:
             continue
         answer = f'\"telega\":\" {message} \"|'

@@ -1,4 +1,5 @@
 import logging
+import sys
 
 from datetime import datetime
 
@@ -24,7 +25,7 @@ def rca_func(client, json_data):
 
                 json_data.set(data)
                 if json_data.exit:
-                    exit(0)
+                    sys.exit(0)
         except ConnectionRefusedError:
             # logging.error('RCA disconnected. ConnectionRefusedError')
             pass
