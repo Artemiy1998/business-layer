@@ -14,7 +14,7 @@ logging.basicConfig(
 )
 
 
-class Switch(object):
+class Switch:
     def __init__(self, scene3d_address):
         self.scene_3d_sock = socket.socket()
         self.scene_3d_sock.connect(scene3d_address)

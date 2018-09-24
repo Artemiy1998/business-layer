@@ -97,7 +97,7 @@ def send_3d_scene():
     """
     @brief Function sends a request to the scene from the client
     all parameters used in this function - global variable
-    Function return response frm the scene.
+    Function return response from the scene.
     """
     try:
         socket_3dScene.send(str(data_Json.get('flag')).encode())
@@ -129,7 +129,7 @@ while True:
             data = client_Socket_Conn.recv(1024).decode()
             data_Json = json.loads(data)
         except ConnectionResetError:
-            print('Disconnect', client_Socket_Address)
+            print('Disconnect by reset', client_Socket_Address)
             break
         except Exception:
             print('Disconnect', client_Socket_Address)
@@ -140,9 +140,7 @@ while True:
             #              f'recv {data_Json["command"]}')
             try:
                 if data_Json.get('flag') == '0':
-                    response = socket_Planner.recv(128).decode()
-                    if response == 'ready':
-                        send_planner()
+                    send_planner()
                 elif data_Json.get('flag') == '1':
                     data_Send_Byte = send_3d_scene()
                     client_Socket_Conn.send(data_Send_Byte)

@@ -120,7 +120,7 @@ def create_command_from_input():
 def send_data(data_to_send):
     data_json = json.dumps(data_to_send)
     sock.send(data_json.encode())
-    print('Sent data:', data_json)
+    print('Send data:', data_json)
 
 
 def send_unparallel_simple_tasks_to_cunit():

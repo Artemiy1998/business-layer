@@ -11,7 +11,7 @@ logging.basicConfig(
 )
 
 
-class CommonSocket(object):
+class CommonSocket:
     def __init__(self, sock, ready_to_read, ready_to_write):
         if not isinstance(sock, socket.socket):
             raise TypeError("not Socket type")

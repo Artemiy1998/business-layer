@@ -124,11 +124,10 @@ taskloader = TaskLoader()
 count = 0
 while True:
     conn, addr = sock_serv.accept()
-    conn.send(b'ready')
     while True:
         print('Command iteration:', count)
         try:
-            message = conn.recv(2048).decode()
+            message = conn.recv(1024).decode()
             if message:
                     logging.info(message)
             if message == 'e':
@@ -152,7 +151,6 @@ while True:
                     process_simple_task(data, taskloader)
                 else:
                     process_complex_task(data, taskloader)
-                conn.send(b'ready')
             except ConnectionAbortedError:
                 # logging.error('RCA aborted connection')
                 pass
