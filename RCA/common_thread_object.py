@@ -1,5 +1,6 @@
 import socket
 import logging
+import time
 
 from threading import Thread
 
@@ -31,6 +32,7 @@ class CommonSocket:
         self.message_from = ''
         self.message_to = ''
         self.exit = False
+        self._DELAY = 0.01
 
     def recv(self):
         total_data = b''
@@ -52,6 +54,8 @@ class CommonSocket:
                 if self.message_from:
                     logging.info(f'{self.who} : {self.message_from}')
                     self.ready_to_read = True
+            else:
+                time.sleep(self._DELAY)
             if self.exit:
                 break
 
@@ -64,6 +68,8 @@ class CommonSocket:
                     self.ready_to_write = False
                 except Exception:
                     pass
+            else:
+                time.sleep(self._DELAY)
             if self.exit:
                 break
 

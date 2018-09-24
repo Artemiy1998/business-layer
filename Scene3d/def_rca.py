@@ -13,7 +13,6 @@ def rca_func(client, json_data):
     @brief Function accept current data system
     :param client: socket client
     :param json_data: data in json format
-    :return:
     """
     while True:
         try:

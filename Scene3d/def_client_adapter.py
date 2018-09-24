@@ -11,13 +11,12 @@ def client_adapter_func(client, json_data):
     @brief This Function send planer current state system
     :param client: socket client
     :param json_data: data in json format
-    :return:
     """
     while True:
         data = json_data.get()
         try:
             message = client.recv(1024).decode()
-            if message == '1':
+            if message == 'get_scene':
                 logging.info(f'def_client_adapter {message}')
                 print(f'def_client_adapter {message}')
 

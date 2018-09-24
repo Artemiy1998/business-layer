@@ -102,10 +102,9 @@ def send_3d_scene():
     Function return response from the scene.
     """
     try:
-        socket_3dScene.send(str(data_Json.get('flag')).encode())
+        socket_3dScene.send(str(data_Json.get('name')).encode())
         data_into_3d_scene = socket_3dScene.recv(2048)
-        print('3d')
-        print(data_into_3d_scene)
+        print('3d', data_into_3d_scene)
         return data_into_3d_scene
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')

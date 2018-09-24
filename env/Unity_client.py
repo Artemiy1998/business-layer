@@ -169,20 +169,10 @@ def send_parallel_complex_tasks_to_cunit():
 
 def send_data_to_3d_scene():
     flag = 1
-    parallel = True
-    name = 'fanuc'
-    cmd = 'm 10 0 0 0 0 0'
     data_to_send = {
         'flag': str(flag),
-        'Scenario': [
-            {
-                'parallel': str(parallel),
-                'name': str(name),
-                'time': '',
-                'energy': '',
-                'command': str(cmd)
-            }
-        ]
+        'name': 'get_scene',
+        'Scenario': []
     }
     data_json = json.dumps(data_to_send)
     sock.send(data_json.encode())
@@ -194,17 +184,22 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port_cl_adapter = 9090
 sock.connect(('localhost', port_cl_adapter))
 
-delay = 5
-inp = input('Enter some key to start or 0 to exit: ')
+print('Options:\n'
+      '1: send simple tasks\n'
+      '2: send complex tasks\n'
+      '3: send "get_scene" request to 3d Scene')
+
+delay = 3
+inp = input('Enter some key [1-3] to start or 0 to exit: ')
 while inp != '0':
-    send_unparallel_simple_tasks_to_cunit()
-    send_parallel_simple_tasks_to_cunit()
-    time.sleep(delay)
-    send_unparallel_complex_tasks_to_cunit()
-    send_parallel_complex_tasks_to_cunit()
-    time.sleep(delay)
+    if inp == '1':
+        send_unparallel_simple_tasks_to_cunit()
+        send_parallel_simple_tasks_to_cunit()
+    elif inp == '2':
+        send_unparallel_complex_tasks_to_cunit()
+        send_parallel_complex_tasks_to_cunit()
+    elif inp == '3':
+        send_data_to_3d_scene()
 
-    # send_data_to_3d_scene()
-    time.sleep(delay * 0.01)
-
-    inp = input('Enter some key to continue or 0 to exit: ')
+    time.sleep(delay)
+    inp = input('Enter some key [1-3] to continue or 0 to exit: ')
