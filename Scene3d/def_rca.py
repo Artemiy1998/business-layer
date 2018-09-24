@@ -23,7 +23,7 @@ def rca_func(client, json_data):
                              f'{str(datetime.now()).replace(":", ";")} '
                              f': {data}')
 
-                json_data.set(data)
+                json_data.add(data)
                 if json_data.exit:
                     sys.exit(0)
         except ConnectionRefusedError:

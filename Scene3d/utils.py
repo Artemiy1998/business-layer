@@ -9,15 +9,12 @@ class Scene3Ddata:
         self.exit = False
 
     # @synchronized
-    def set(self, data):
-        # (data)
+    def add(self, data):
         temp_data = data.split(', ')
-        # (temp_data)
         for item in temp_data:
             # (item, 00000)
             try:
                 temp_json = json.loads(f'{item}')
-
                 self.data.update(temp_json)
             except Exception:
                 pass
