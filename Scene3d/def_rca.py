@@ -7,6 +7,8 @@ from datetime import datetime
 logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
                     level=logging.DEBUG, filename='scene3d.log')
 
+buffer_size = 1024
+
 
 def rca_func(client, json_data):
     """
@@ -16,14 +18,14 @@ def rca_func(client, json_data):
     """
     while True:
         try:
-            data = client.recv(1024).decode()
-            if data:
-                msg = (f'def_rca recv {str(datetime.now()).replace(":", ";")} '
-                       f': {data}')
-                logging.info(msg)
-                print(msg)
+            message = client.recv(buffer_size).decode()
+            if message:
+                data = (f'def_rca recv {str(datetime.now()).replace(":", ";")}'
+                        f': {message}')
+                logging.info(data)
+                print(data)
 
-                json_data.add(data)
+                json_data.add(message)
                 if json_data.exit:
                     sys.exit(0)
         except ConnectionRefusedError:

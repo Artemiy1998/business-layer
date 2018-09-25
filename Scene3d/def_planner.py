@@ -5,6 +5,12 @@ import sys
 logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
                     level=logging.DEBUG, filename='scene3d.log')
 
+buffer_size = 1024
+
+
+def _clear_parameter_name(parameter):
+    return parameter[1:-1]
+
 
 def planner_func(client, json_data):
     """
@@ -13,16 +19,25 @@ def planner_func(client, json_data):
     :param json_data: data in json format
     """
     while True:
-        data = json_data.get()
         try:
-            message = client.recv(1024).decode()
-            if message == 'get_scene':
-                logging.info(f'def_planer recv {message}')
-                print(f'def_planer recv {message}')
+            message = client.recv(buffer_size).decode()
+            logging.info(f'def_planer recv {message}')
+            print(f'def_planner recv', message)
 
+            if message == 'get_scene':
+                data = json_data.get()
                 client.send(data.encode())
+
                 logging.info(f'planner send {data}')
-                print(f'planner send {data}')
+                print(f'planner send', data)
+            elif message.startswith('get '):
+                # Skip 'get ' in received message, clear from special symbols.
+                parameter_name = _clear_parameter_name(message[4:])
+                response = json_data.get_by_parameter(parameter_name)
+
+                client.send(response.encode())
+                logging.info(f'planner send {response}')
+                print(f'planner send', response)
             if json_data.exit:
                 logging.info('exit')
                 sys.exit(0)

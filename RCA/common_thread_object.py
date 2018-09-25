@@ -11,17 +11,20 @@ logging.basicConfig(
     filename='RCA.log'
 )
 
+buffer_size = 1024
+
 
 class CommonSocket:
     def __init__(self, sock, ready_to_read, ready_to_write):
         if not isinstance(sock, socket.socket):
-            raise TypeError("not Socket type")
-        if not isinstance(ready_to_read, bool) or \
-           not isinstance(ready_to_write, bool):
-            raise TypeError("not Bool type")
+            raise TypeError(f'Expected socket type, got {type(sock)}.')
+        if not isinstance(ready_to_read, bool):
+            raise TypeError(f'Expected bool type, got {type(ready_to_read)}.')
+        if not isinstance(ready_to_write, bool):
+            raise TypeError(f'Expected bool type, got {type(ready_to_write)}.')
         self.sock = sock
         self.sock.setblocking(False)
-        self.who = sock.recv(1024).decode()
+        self.who = sock.recv(buffer_size).decode()
         logging.info(self.who)
         self.ready_to_read = ready_to_read
         self.ready_to_write = ready_to_write
@@ -38,7 +41,7 @@ class CommonSocket:
         total_data = b''
         try:
             while True:
-                data = self.sock.recv(1024)
+                data = self.sock.recv(buffer_size)
                 if data:
                     total_data += data
                 else:

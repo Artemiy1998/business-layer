@@ -23,7 +23,7 @@ config = configparser.ConfigParser()
 config.read(config_file)
 host = config['HOSTS']['Main_host']
 port_3d_scene = int(config['PORTS']['Port_3d_scene'])
-size = 1024
+buffer_size = int(config['PARAMS']['Buffersize'])
 # config end
 
 sock_main = socket.socket()
@@ -34,7 +34,7 @@ sock_main.listen(3)
 while True:
     client, address = sock_main.accept()
     logging.info(f'Connect {address[0]}')
-    who_is_it = client.recv(1024).decode()
+    who_is_it = client.recv(buffer_size).decode()
 
     if who_is_it == 'planner':
         planer_thread = Thread(target=planner_func, args=(client, json_data))

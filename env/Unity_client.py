@@ -3,6 +3,9 @@ import json
 import time
 
 
+buffer_size = 1024
+
+
 def _create_task(flag='0', task_name='moving', parallel=False,
                  robot_names=('f',), tasks_time=(3,), energy=(3,),
                  commands=('m 0 0 0 0 0 0',)):
@@ -14,9 +17,9 @@ def _create_task(flag='0', task_name='moving', parallel=False,
                 'parallel': str(parallel),
                 'name': str(robot_name),
                 'time': str(task_time),
-                'energy': str(ener),
+                'energy': str(enrg),
                 'command': str(command)
-            } for robot_name, task_time, ener, command in zip(robot_names,
+            } for robot_name, task_time, enrg, command in zip(robot_names,
                                                               tasks_time,
                                                               energy, commands)
         ]
@@ -117,13 +120,13 @@ def create_command_from_input():
     return data_to_send
 
 
-def send_data(data_to_send):
+def send_data(data_to_send, sock):
     data_json = json.dumps(data_to_send)
     sock.send(data_json.encode())
     print('Send data:', data_json)
 
 
-def send_unparallel_simple_tasks_to_cunit():
+def send_unparallel_simple_tasks_to_cunit(sock):
     data_to_send = create_simple_unparallel_task(
         flag='0',
         task_name='moving',
@@ -133,10 +136,10 @@ def send_unparallel_simple_tasks_to_cunit():
         commands=['m 10 0 0 0 0 0', 'm 10 10 0 0 0 0',
                   'm 20 10 0 0 0 0', 'm 0 0 0 0 0 0']
     )
-    send_data(data_to_send)
+    send_data(data_to_send, sock)
 
 
-def send_parallel_simple_tasks_to_cunit():
+def send_parallel_simple_tasks_to_cunit(sock):
     data_to_send = create_simple_parallel_task(
         flag='0',
         task_name='moving_together',
@@ -146,28 +149,28 @@ def send_parallel_simple_tasks_to_cunit():
         commands=['m 40 10 0 0 0 0', 'm 60 15 0 0 0 0',
                   'm 80 20 0 0 0 0', 'm 80 0 20 0 0 0']
     )
-    send_data(data_to_send)
+    send_data(data_to_send, sock)
 
 
-def send_unparallel_complex_tasks_to_cunit():
+def send_unparallel_complex_tasks_to_cunit(sock):
     data_to_send = create_complex_unparallel_task(
         flag='0',
         task_name='moving_difficult',
         commands=['moving', 'moving']
     )
-    send_data(data_to_send)
+    send_data(data_to_send, sock)
 
 
-def send_parallel_complex_tasks_to_cunit():
+def send_parallel_complex_tasks_to_cunit(sock):
     data_to_send = create_complex_parallel_task(
         flag='0',
-        task_name='moving_difficult2',
+        task_name='moving_difficult_together',
         commands=['moving_together', 'moving_together']
     )
-    send_data(data_to_send)
+    send_data(data_to_send, sock)
 
 
-def send_data_to_3d_scene():
+def send_get_scene_request(sock):
     flag = 1
     data_to_send = {
         'flag': str(flag),
@@ -176,30 +179,58 @@ def send_data_to_3d_scene():
     }
     data_json = json.dumps(data_to_send)
     sock.send(data_json.encode())
-    data = sock.recv(2048).decode()
-    print('3d:', data)
+    data = sock.recv(buffer_size).decode()
+    print('Response from 3d scene:', data)
 
 
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def send_simele_task_with_parameter(sock):
+    data_to_send = create_simple_unparallel_task(
+        flag='0',
+        task_name='moving with parameter',
+        robot_names=['fanuc', 'telega'],
+        tasks_time=[2, 2],
+        energy=[3, 3],
+        commands=['m $cube$', 'm $cube$']
+    )
+    send_data(data_to_send, sock)
+
+
+def send_complex_task_with_parameter(sock):
+    data_to_send = create_complex_unparallel_task(
+        flag='0',
+        task_name='moving_difficult_with_parameter',
+        commands=['moving', 'moving with parameter']
+    )
+    send_data(data_to_send, sock)
+
+
+cl_adapter_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port_cl_adapter = 9090
-sock.connect(('localhost', port_cl_adapter))
+cl_adapter_sock.connect(('localhost', port_cl_adapter))
 
 print('Options:\n'
       '1: send simple tasks\n'
       '2: send complex tasks\n'
-      '3: send "get_scene" request to 3d Scene')
+      '3: send "get_scene" request to 3d Scene\n'
+      '4: send simple task with parameter\n'
+      '5: send complex task with parameter\n\n'
+      '0: exit')
 
 delay = 3
-inp = input('Enter some key [1-3] to start or 0 to exit: ')
+inp = input('Enter some key [1-5] to start or 0 to exit: ')
 while inp != '0':
     if inp == '1':
-        send_unparallel_simple_tasks_to_cunit()
-        send_parallel_simple_tasks_to_cunit()
+        send_unparallel_simple_tasks_to_cunit(cl_adapter_sock)
+        send_parallel_simple_tasks_to_cunit(cl_adapter_sock)
     elif inp == '2':
-        send_unparallel_complex_tasks_to_cunit()
-        send_parallel_complex_tasks_to_cunit()
+        send_unparallel_complex_tasks_to_cunit(cl_adapter_sock)
+        send_parallel_complex_tasks_to_cunit(cl_adapter_sock)
     elif inp == '3':
-        send_data_to_3d_scene()
+        send_get_scene_request(cl_adapter_sock)
+    elif inp == '4':
+        send_simele_task_with_parameter(cl_adapter_sock)
+    elif inp == '5':
+        send_complex_task_with_parameter(cl_adapter_sock)
 
     time.sleep(delay)
-    inp = input('Enter some key [1-3] to continue or 0 to exit: ')
+    inp = input('Enter some key [1-5] to continue or 0 to exit: ')

@@ -27,6 +27,7 @@ host = config['HOSTS']['Main_host']
 port_cl_ad = int(config['PORTS']['Port_cl_adapter'])
 port_planner = int(config['PORTS']['Port_planner'])
 port_3d_scene = int(config['PORTS']['Port_3d_scene'])
+buffer_size = int(config['PARAMS']['Buffersize'])
 listen_var = int(config['PARAMS']['Listen'])
 # end config
 
@@ -103,8 +104,8 @@ def send_3d_scene():
     """
     try:
         socket_3dScene.send(str(data_Json.get('name')).encode())
-        data_into_3d_scene = socket_3dScene.recv(2048)
-        print('3d', data_into_3d_scene)
+        data_into_3d_scene = socket_3dScene.recv(buffer_size)
+        print('3d', data_into_3d_scene.decode())
         return data_into_3d_scene
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
@@ -132,7 +133,7 @@ while True:
     while True:
         print('Command iteration:', count)
         try:
-            data = client_Socket_Conn.recv(1024).decode()
+            data = client_Socket_Conn.recv(buffer_size).decode()
             data_Json = json.loads(data)
         except ConnectionResetError:
             print('Disconnect by reset', client_Socket_Address)

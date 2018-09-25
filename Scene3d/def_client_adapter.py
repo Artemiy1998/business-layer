@@ -5,6 +5,8 @@ import sys
 logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
                     level=logging.DEBUG, filename='scene3d.log')
 
+buffer_size = 1024
+
 
 def client_adapter_func(client, json_data):
     """
@@ -13,14 +15,15 @@ def client_adapter_func(client, json_data):
     :param json_data: data in json format
     """
     while True:
-        data = json_data.get()
         try:
-            message = client.recv(1024).decode()
-            if message == 'get_scene':
-                logging.info(f'def_client_adapter {message}')
-                print(f'def_client_adapter {message}')
+            message = client.recv(buffer_size).decode()
+            logging.info(f'def_client_adapter {message}')
+            print(f'def_client_adapter {message}')
 
+            if message == 'get_scene':
+                data = json_data.get()
                 client.send(data.encode())
+
                 logging.info(f'client send {data}')
                 print(f'client send {data}')
             if message == 'e':
