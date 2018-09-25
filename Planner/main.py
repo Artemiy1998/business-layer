@@ -82,7 +82,7 @@ def data_convert_json_to_str_byte(name, cmd):
 
 def find_parameter(command, symbol):
     parameter_begin = command.find(symbol)
-    if parameter_begin == -1:
+    if parameter_begin != -1:
         parameter_end = command.find(symbol, parameter_begin + 1)
         if parameter_end == -1:
             raise ValueError(f'Did not find end of parameter in command: '

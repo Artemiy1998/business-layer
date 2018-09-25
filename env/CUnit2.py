@@ -16,10 +16,11 @@ while True:
     print(messages)
     messages = messages.split('|')
     for message in messages:
-        if 'e' == message:
+        if message == 'e':
             sys.exit()
         if not message:
             continue
-        answer = f'\"cube\":\" {message} \"|'
+        # Return formatted message with cube key.
+        response = f'"cube": "{message[3:-1]}"|'
         time.sleep(1)
-        sock_client.send(answer.encode())
+        sock_client.send(response.encode())

@@ -66,7 +66,7 @@ def except_func(def_send, socket_component, socket_address,
         except ConnectionRefusedError:
             pass
     client_Socket_Conn.send(message_error)
-    logging.info(f'send Client {message_error.decode()}')
+    logging.info(f'Send Client {message_error.decode()}')
     socket_another_component.send(b'e')
 
     socket_component.close()
@@ -88,7 +88,7 @@ def send_planner():
         data_to_send = add_separator(data_to_send)
         socket_Planner.send(data_to_send.encode())
         print(data_to_send)
-        logging.info(f'send Planner {data_to_send}')
+        logging.info(f'Send Planner {data_to_send}')
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
@@ -105,18 +105,18 @@ def send_3d_scene():
     try:
         socket_3dScene.send(str(data_Json.get('name')).encode())
         data_into_3d_scene = socket_3dScene.recv(buffer_size)
-        print('3d', data_into_3d_scene.decode())
+        print('Response from 3d scene:', data_into_3d_scene.decode())
         return data_into_3d_scene
     except ConnectionRefusedError:
         logging.error('ConnectionRefusedError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
-        logging.info('send Client:Refused, wait 3 minutes')
+        logging.info('Send Client:Refused, wait 3 minutes')
         except_func(send_3d_scene, socket_3dScene,
                     address_3dScene, socket_Planner)
     except ConnectionResetError:
         logging.error('ConnectionResetError')
         client_Socket_Conn.send(b'Error, Connection Refused wait 3 minutes')
-        logging.info('send Client: Reset, wait 3 min')
+        logging.info('Send Client: Reset, wait 3 min')
         except_func(send_3d_scene, socket_3dScene,
                     address_3dScene, socket_Planner)
 

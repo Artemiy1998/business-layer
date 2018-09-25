@@ -126,7 +126,7 @@ def send_data(data_to_send, sock):
     print('Send data:', data_json)
 
 
-def send_unparallel_simple_tasks_to_cunit(sock):
+def send_unparallel_simple_tasks(sock):
     data_to_send = create_simple_unparallel_task(
         flag='0',
         task_name='moving',
@@ -139,7 +139,7 @@ def send_unparallel_simple_tasks_to_cunit(sock):
     send_data(data_to_send, sock)
 
 
-def send_parallel_simple_tasks_to_cunit(sock):
+def send_parallel_simple_tasks(sock):
     data_to_send = create_simple_parallel_task(
         flag='0',
         task_name='moving_together',
@@ -152,7 +152,20 @@ def send_parallel_simple_tasks_to_cunit(sock):
     send_data(data_to_send, sock)
 
 
-def send_unparallel_complex_tasks_to_cunit(sock):
+def send_parallel_simple_tasks_with_odd_command_number(sock):
+    data_to_send = create_simple_parallel_task(
+        flag='0',
+        task_name='moving_old',
+        robot_names=['fanuc', 'fanuc', 'fanuc'],
+        tasks_time=[1, 2, 3],
+        energy=[3, 3, 3],
+        commands=['m 40 10 0 0 0 0', 'm 60 15 0 0 0 0',
+                  'm 80 20 0 0 0 0']
+    )
+    send_data(data_to_send, sock)
+
+
+def send_unparallel_complex_tasks(sock):
     data_to_send = create_complex_unparallel_task(
         flag='0',
         task_name='moving_difficult',
@@ -161,7 +174,7 @@ def send_unparallel_complex_tasks_to_cunit(sock):
     send_data(data_to_send, sock)
 
 
-def send_parallel_complex_tasks_to_cunit(sock):
+def send_parallel_complex_tasks(sock):
     data_to_send = create_complex_parallel_task(
         flag='0',
         task_name='moving_difficult_together',
@@ -183,7 +196,7 @@ def send_get_scene_request(sock):
     print('Response from 3d scene:', data)
 
 
-def send_simele_task_with_parameter(sock):
+def send_simple_task_with_parameter(sock):
     data_to_send = create_simple_unparallel_task(
         flag='0',
         task_name='moving with parameter',
@@ -220,15 +233,17 @@ delay = 3
 inp = input('Enter some key [1-5] to start or 0 to exit: ')
 while inp != '0':
     if inp == '1':
-        send_unparallel_simple_tasks_to_cunit(cl_adapter_sock)
-        send_parallel_simple_tasks_to_cunit(cl_adapter_sock)
+        send_unparallel_simple_tasks(cl_adapter_sock)
+        send_parallel_simple_tasks(cl_adapter_sock)
+        time.sleep(delay)
+        send_parallel_simple_tasks_with_odd_command_number(cl_adapter_sock)
     elif inp == '2':
-        send_unparallel_complex_tasks_to_cunit(cl_adapter_sock)
-        send_parallel_complex_tasks_to_cunit(cl_adapter_sock)
+        send_unparallel_complex_tasks(cl_adapter_sock)
+        send_parallel_complex_tasks(cl_adapter_sock)
     elif inp == '3':
         send_get_scene_request(cl_adapter_sock)
     elif inp == '4':
-        send_simele_task_with_parameter(cl_adapter_sock)
+        send_simple_task_with_parameter(cl_adapter_sock)
     elif inp == '5':
         send_complex_task_with_parameter(cl_adapter_sock)
 
