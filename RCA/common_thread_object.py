@@ -55,7 +55,7 @@ class CommonSocket:
             if not self.ready_to_read:
                 self.message_from = self.recv()
                 if self.message_from:
-                    logging.info(f'{self.who} : {self.message_from}')
+                    logging.info(f'{self.who} -> {self.message_from}')
                     self.ready_to_read = True
             else:
                 time.sleep(self._DELAY)
@@ -65,9 +65,10 @@ class CommonSocket:
     def write_func(self):
         while True:
             if self.ready_to_write:
-                logging.info(f'{self.who} : {self.message_to}')
+                logging.info(f'{self.who} <- {self.message_to}')
                 try:
                     self.sock.send(self.message_to.encode())
+                    print('Send', self.message_to)
                     self.ready_to_write = False
                 except Exception:
                     pass

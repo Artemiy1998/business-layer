@@ -130,11 +130,11 @@ def send_unparallel_simple_tasks(sock):
     data_to_send = create_simple_unparallel_task(
         flag='0',
         task_name='moving',
-        robot_names=['fanuc', 'telega', 'fanuc', 'telega'],
+        robot_names=['f', 't', 'f', 't'],
         tasks_time=[3, 1, 3, 3],
         energy=[3, 3, 3, 3],
-        commands=['m 10 0 0 0 0 0', 'm 10 10 0 0 0 0',
-                  'm 20 10 0 0 0 0', 'm 0 0 0 0 0 0']
+        commands=['m 1 1 0 4 0 0', 'm 1 2 0 4 0 0',
+                  'm 1 3 0 4 0 0', 'm 1 4 0 4 0 0']
     )
     send_data(data_to_send, sock)
 
@@ -143,11 +143,11 @@ def send_parallel_simple_tasks(sock):
     data_to_send = create_simple_parallel_task(
         flag='0',
         task_name='moving_together',
-        robot_names=['fanuc', 'telega', 'fanuc', 'telega'],
+        robot_names=['f', 't', 'f', 't'],
         tasks_time=[3, 1, 3, 3],
         energy=[3, 3, 3, 3],
-        commands=['m 40 10 0 0 0 0', 'm 60 15 0 0 0 0',
-                  'm 80 20 0 0 0 0', 'm 80 0 20 0 0 0']
+        commands=['m 2 1 1 4 0 0', 'm 2 2 1 4 0 0',
+                  'm 2 3 1 4 0 0', 'm 2 4 1 4 0 0']
     )
     send_data(data_to_send, sock)
 
@@ -156,11 +156,11 @@ def send_parallel_simple_tasks_with_odd_command_number(sock):
     data_to_send = create_simple_parallel_task(
         flag='0',
         task_name='moving_old',
-        robot_names=['fanuc', 'fanuc', 'fanuc'],
+        robot_names=['f', 'f', 'f'],
         tasks_time=[1, 2, 3],
         energy=[3, 3, 3],
-        commands=['m 40 10 0 0 0 0', 'm 60 15 0 0 0 0',
-                  'm 80 20 0 0 0 0']
+        commands=['m 3 1 1 3 0 0', 'm 3 2 1 3 0 0',
+                  'm 3 3 1 3 0 0']
     )
     send_data(data_to_send, sock)
 
@@ -196,11 +196,11 @@ def send_get_scene_request(sock):
     print('Response from 3d scene:', data)
 
 
-def send_simple_task_with_parameter(sock):
+def send_unparallel_simple_task_with_parameter(sock):
     data_to_send = create_simple_unparallel_task(
         flag='0',
-        task_name='moving with parameter',
-        robot_names=['fanuc', 'telega'],
+        task_name='moving_with_parameter',
+        robot_names=['f', 't'],
         tasks_time=[2, 2],
         energy=[3, 3],
         commands=['m $cube$', 'm $cube$']
@@ -208,11 +208,32 @@ def send_simple_task_with_parameter(sock):
     send_data(data_to_send, sock)
 
 
-def send_complex_task_with_parameter(sock):
+def send_parallel_simple_task_with_parameter(sock):
+    data_to_send = create_simple_parallel_task(
+        flag='0',
+        task_name='moving_with_parameter_par',
+        robot_names=['f', 'f'],
+        tasks_time=[1, 2],
+        energy=[3, 3],
+        commands=['m 4 1 1 1 0 0', 'm $cube$']
+    )
+    send_data(data_to_send, sock)
+
+
+def send_unparallel_complex_task_with_parameter(sock):
     data_to_send = create_complex_unparallel_task(
         flag='0',
         task_name='moving_difficult_with_parameter',
-        commands=['moving', 'moving with parameter']
+        commands=['moving', 'moving_with_parameter']
+    )
+    send_data(data_to_send, sock)
+
+
+def send_parallel_complex_task_with_parameter(sock):
+    data_to_send = create_complex_parallel_task(
+        flag='0',
+        task_name='moving_difficult_with_parameter_par',
+        commands=['moving_together', 'moving_with_parameter_par']
     )
     send_data(data_to_send, sock)
 
@@ -243,9 +264,13 @@ while inp != '0':
     elif inp == '3':
         send_get_scene_request(cl_adapter_sock)
     elif inp == '4':
-        send_simple_task_with_parameter(cl_adapter_sock)
+        send_unparallel_simple_task_with_parameter(cl_adapter_sock)
+        send_parallel_simple_task_with_parameter(cl_adapter_sock)
     elif inp == '5':
-        send_complex_task_with_parameter(cl_adapter_sock)
+        send_unparallel_complex_task_with_parameter(cl_adapter_sock)
+        send_parallel_complex_task_with_parameter(cl_adapter_sock)
+    else:
+        print('Not found command. Please, try again.')
 
     time.sleep(delay)
     inp = input('Enter some key [1-5] to continue or 0 to exit: ')

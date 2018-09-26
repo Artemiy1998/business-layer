@@ -23,6 +23,8 @@ class Switch:
         self.thread = Thread(name='switch', target=self.process)
         self.exit = False
 
+        self._DELAY = 0.01
+
     def run(self):
         self.thread.start()
 
@@ -39,17 +41,21 @@ class Switch:
                     planer_messages = socket_dict[sock_name].message_from
                     if planer_messages:
                         planer_messages = planer_messages.split('|')
-                        for planer_message in planer_messages:
+                        # Skip last empty message.
+                        for planer_message in planer_messages[:-1]:
                             logging.debug(f'planner message: {planer_message}')
                             if planer_message == 'e':
                                 time.sleep(5)
                                 logging.info('exit')
                                 sys.exit(0)
-                            if not planer_message:
-                                continue
+
                             [sock_id, planer_cmd] = planer_message.split(':')
                             if sock_id not in socket_dict:
                                 continue
+
+                            # If socket ready to write then sleep.
+                            while socket_dict[sock_id].ready_to_write:
+                                time.sleep(self._DELAY)
 
                             # ATTENTION: only for local testing env.
                             socket_dict[sock_id].message_to = f'{planer_cmd} '

@@ -65,8 +65,6 @@ sock_serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock_serv.bind((host, port_planner))
 sock_serv.listen(1)
 
-dict_Name = {'fanuc': 'f', 'telega': 't'}
-
 SPECIAL_SYMBOL = '$'
 
 
@@ -75,7 +73,7 @@ def get_scene():
 
 
 def data_convert_json_to_str_byte(name, cmd):
-    data_str_byte = f'{dict_Name[name]}: {cmd}|'.encode()
+    data_str_byte = f'{name}: {cmd}|'.encode()
     print(data_str_byte)
     return data_str_byte
 
@@ -120,6 +118,7 @@ def process_simple_task(task, task_loader, save_task=True):
         if task['Scenario'][i].get('parallel') == 'True' and \
            i + 1 < command_number:
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
+            print('Send to', name_1, 'command:', command_1)
 
             name_2 = task['Scenario'][i + 1].get('name')
             command_2 = task['Scenario'][i + 1].get('command')
@@ -131,22 +130,24 @@ def process_simple_task(task, task_loader, save_task=True):
                 )
 
             sock_rob_ad.send(data_convert_json_to_str_byte(name_2, command_2))
+            print('Send to', name_2, 'command:', command_2)
 
             time_2 = int(task['Scenario'][i + 1].get('time'))
             time.sleep(max(time_1, time_2))
             i += 1
         else:
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
+            print('Send to', name_1, 'command:', command_1)
             time.sleep(time_1)
         i += 1
 
 
 def process_complex_task(task, task_loader):
-    for i in range(len(task['Scenario'])):
-        print('Task name:', task['Scenario'][i].get('command'))
+    for task in task['Scenario']:
+        print('Task name:', task.get('command'))
 
         # Load tasks from loader and process it as simple task.
-        simple_task = task_loader.load_task(task['Scenario'][i].get('command'))
+        simple_task = task_loader.load_task(task.get('command'))
         process_simple_task(simple_task, task_loader, save_task=False)
 
 

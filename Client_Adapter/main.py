@@ -35,7 +35,10 @@ listen_var = int(config['PARAMS']['Listen'])
 # localhost != socket.gethostbyname(socket.gethostname())
 
 # print(socket.gethostbyname(socket.gethostname()))
-address_client = ('localhost', port_cl_ad)
+
+test_ip = '192.168.0.177'  # 'localhost'
+
+address_client = (test_ip, port_cl_ad)
 address_3dScene = (host, port_3d_scene)
 address_Planner = (host, port_planner)
 dict_Name = {'fanuc': 'f', 'telega': 't'}
@@ -126,47 +129,72 @@ def add_separator(message):
     return message
 
 
+def process_multiple_json(message):
+    tasks = message.count('flag')
+    if tasks == 1:
+        return [message]
+
+    result = []
+    pos_1, pos_2 = 2, 0
+    for _ in range(tasks - 1):
+        pos_2 = message.find('flag', pos_1 + 1)
+        result.append(message[pos_1 - 2:pos_2 - 2])
+        pos_1 = pos_2
+
+    result.append(message[pos_2 - 2:])
+    return result
+
+
 count = 0
 while True:
     client_Socket_Conn, client_Socket_Address = socket_client.accept()
     print('Connect', client_Socket_Address)
     while True:
         print('Command iteration:', count)
+        data = ''
+        messages = []
         try:
             data = client_Socket_Conn.recv(buffer_size).decode()
-            data_Json = json.loads(data)
+            messages = process_multiple_json(data)
         except ConnectionResetError:
             print('Disconnect by reset', client_Socket_Address)
             break
-        except Exception:
+        except Exception as e:
+            print('Exception:', e)
+            print('Message received:', data)
             print('Disconnect', client_Socket_Address)
             break
-        print(isinstance(data_Json, dict))
-        if isinstance(data_Json, dict):
-            # logging.info(f'From {client_Socket_Address[0]} '
-            #              f'recv {data_Json["command"]}')
-            try:
-                if data_Json.get('flag') == '0':
-                    send_planner()
-                elif data_Json.get('flag') == '1':
-                    data_Send_Byte = send_3d_scene()
-                    client_Socket_Conn.send(data_Send_Byte)
-                elif data_Json.get('flag') == 'e':
-                    socket_3dScene.send(b'e')
-                    logging.info('send 3dScene e')
-                    socket_Planner.send(b'e')
-                    logging.info('send Planner e')
-                    socket_Planner.close()
-                    logging.info('Planner disconnect')
-                    socket_3dScene.close()
-                    logging.info('3dScene disconnect')
-                    client_Socket_Conn.close()
-                    logging.info('Client disconnect')
-                    time.sleep(3)
-                    sys.exit()  # Planning crash for test builds.
-            except AttributeError:
-                logging.error('not JSON')
-        else:
-            logging.error('not JSON')
-        count += 1
+
+        for msg in messages:
+            data_Json = json.loads(msg)
+
+            print(isinstance(data_Json, dict))
+            if isinstance(data_Json, dict):
+                # logging.info(f'From {client_Socket_Address[0]} '
+                #              f'recv {data_Json["command"]}')
+                try:
+                    if data_Json.get('flag') == '0':
+                        send_planner()
+                    elif data_Json.get('flag') == '1':
+                        data_Send_Byte = send_3d_scene()
+                        client_Socket_Conn.send(data_Send_Byte)
+                    elif data_Json.get('flag') == 'e':
+                        print('Send exit commands')
+                        socket_3dScene.send(b'e')
+                        logging.info('Send 3dScene e')
+                        socket_Planner.send(b'e')
+                        logging.info('Send Planner e')
+                        socket_Planner.close()
+                        logging.info('Planner disconnect')
+                        socket_3dScene.close()
+                        logging.info('3dScene disconnect')
+                        client_Socket_Conn.close()
+                        logging.info('Client disconnect')
+                        time.sleep(3)
+                        sys.exit()  # Planning crash for test builds.
+                except AttributeError:
+                    logging.error('Not JSON')
+            else:
+                logging.error('Not JSON')
+            count += 1
     client_Socket_Conn.close()

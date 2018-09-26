@@ -30,6 +30,9 @@ class TaskLoader:
         return self[task_name]
 
     def save_task(self, task):
+        if not task['name']:
+            return
+
         if self.is_exist(task):
             self._parsed_json_tasks[task['name']] = task
 
