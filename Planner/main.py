@@ -66,6 +66,7 @@ sock_serv.bind((host, port_planner))
 sock_serv.listen(1)
 
 SPECIAL_SYMBOL = '$'
+CONCAT_SYMBOL = '+'
 
 
 def get_scene():
@@ -78,7 +79,7 @@ def data_convert_json_to_str_byte(name, cmd):
     return data_str_byte
 
 
-def find_parameter(command, symbol):
+def find_parameter(command, symbol=SPECIAL_SYMBOL):
     parameter_begin = command.find(symbol)
     if parameter_begin != -1:
         parameter_end = command.find(symbol, parameter_begin + 1)
@@ -89,10 +90,23 @@ def find_parameter(command, symbol):
     return None
 
 
-def get_data_and_replace_parameter(command, parameter, sock):
+def get_data_and_replace_parameter(command, parameter, sock,
+                                   symbol=CONCAT_SYMBOL, offset=None):
     sock.send(f'get {parameter}'.encode())
     data_from_3d_scene = sock.recv(buffer_size).decode()
-    return command.replace(parameter, data_from_3d_scene)
+    new_command = command.replace(parameter, data_from_3d_scene)
+
+    pos = new_command.find(symbol)
+    if pos == -1:
+        return new_command
+
+    data_to_add = new_command[pos + 2:]
+    coords = [str(int(x) + int(y)) for x, y in zip(
+        data_from_3d_scene.split(' '), data_to_add.split(' ')
+    )]
+    if offset is None:
+        return new_command[:2] + ' '.join(coords)
+    raise NotImplementedError('Need to add processing for non-standard offset')
 
 
 def process_simple_task(task, task_loader, save_task=True):
@@ -108,7 +122,7 @@ def process_simple_task(task, task_loader, save_task=True):
         command_1 = task['Scenario'][i].get('command')
 
         # Find parameter in command, try to replace it to data from 3d scene.
-        parameter_name_1 = find_parameter(command_1, SPECIAL_SYMBOL)
+        parameter_name_1 = find_parameter(command_1)
         if parameter_name_1 is not None:
             command_1 = get_data_and_replace_parameter(
                 command_1, parameter_name_1, sock_3d_scene
@@ -123,7 +137,7 @@ def process_simple_task(task, task_loader, save_task=True):
             name_2 = task['Scenario'][i + 1].get('name')
             command_2 = task['Scenario'][i + 1].get('command')
 
-            parameter_name_2 = find_parameter(command_2, SPECIAL_SYMBOL)
+            parameter_name_2 = find_parameter(command_2)
             if parameter_name_2 is not None:
                 command_2 = get_data_and_replace_parameter(
                     command_2, parameter_name_2, sock_3d_scene

@@ -25,6 +25,8 @@ class Scene3Ddata:
         return json.dumps(self.data)
 
     def get_by_parameter(self, parameter):
+        if parameter not in self.data:
+            return ''
         return self.data[parameter]
 
 
