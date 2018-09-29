@@ -101,8 +101,8 @@ def get_data_and_replace_parameter(command, parameter, sock):
 def add_offset(command, data_from_3d_scene, concat_symbol=CONCAT_SYMBOL,
                separated_symbol=SEPARATED_SYMBOL, command_offset=None):
     # Find symbol for command with offset.
-    pos = command.find(concat_symbol)
-    if pos == -1:
+    con_pos = command.find(concat_symbol)
+    if con_pos == -1:
         return command
 
     # Find command coordinate.
@@ -111,8 +111,8 @@ def add_offset(command, data_from_3d_scene, concat_symbol=CONCAT_SYMBOL,
         raise ValueError(f'Did not found control symbol at the end of the'
                          f'command: {command}')
 
-    # Skip space symbols: pos + 2 and sep_pos - 1.
-    data_to_add = command[pos + 2:sep_pos - 1]
+    # Skip space symbols: con_pos + 2 and sep_pos - 1.
+    data_to_add = command[con_pos + 2:sep_pos - 1]
     coords = [str(int(x) + int(y)) for x, y in zip(
         data_from_3d_scene.split(' '), data_to_add.split(' ')
     )]
