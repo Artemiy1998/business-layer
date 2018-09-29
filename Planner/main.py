@@ -67,6 +67,7 @@ sock_serv.listen(1)
 
 SPECIAL_SYMBOL = '$'
 CONCAT_SYMBOL = '+'
+SEPARATED_SYMBOL = '!'
 
 
 def get_scene():
@@ -90,22 +91,35 @@ def find_parameter(command, symbol=SPECIAL_SYMBOL):
     return None
 
 
-def get_data_and_replace_parameter(command, parameter, sock,
-                                   symbol=CONCAT_SYMBOL, offset=None):
+def get_data_and_replace_parameter(command, parameter, sock):
     sock.send(f'get {parameter}'.encode())
     data_from_3d_scene = sock.recv(buffer_size).decode()
     new_command = command.replace(parameter, data_from_3d_scene)
+    return add_offset(new_command, data_from_3d_scene)
 
-    pos = new_command.find(symbol)
+
+def add_offset(command, data_from_3d_scene, concat_symbol=CONCAT_SYMBOL,
+               separated_symbol=SEPARATED_SYMBOL, command_offset=None):
+    # Find symbol for command with offset.
+    pos = command.find(concat_symbol)
     if pos == -1:
-        return new_command
+        return command
 
-    data_to_add = new_command[pos + 2:]
+    # Find command coordinate.
+    sep_pos = command.find(separated_symbol)
+    if sep_pos == -1:
+        raise ValueError(f'Did not found control symbol at the end of the'
+                         f'command: {command}')
+
+    # Skip space symbols: pos + 2 and sep_pos - 1.
+    data_to_add = command[pos + 2:sep_pos - 1]
     coords = [str(int(x) + int(y)) for x, y in zip(
         data_from_3d_scene.split(' '), data_to_add.split(' ')
     )]
-    if offset is None:
-        return new_command[:2] + ' '.join(coords)
+    if command_offset is None:
+        # Get command literal (because it place in the beginning)
+        # with space symbol. Add command coordinate at the end.
+        return command[:2] + ' '.join(coords) + command[sep_pos + 1:]
     raise NotImplementedError('Need to add processing for non-standard offset')
 
 
