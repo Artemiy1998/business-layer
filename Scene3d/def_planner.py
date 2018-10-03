@@ -1,5 +1,5 @@
 import logging
-import sys
+import os
 
 
 logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
@@ -40,7 +40,7 @@ def planner_func(client, json_data):
                 print(f'planner send', response)
             if json_data.exit:
                 logging.info('exit')
-                sys.exit(0)
+                os._exit(0)
         except ConnectionRefusedError:
             # logging.error('Planner disconnected. ConnectionRefusedError')
             pass

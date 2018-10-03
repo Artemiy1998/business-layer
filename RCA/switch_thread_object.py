@@ -1,7 +1,7 @@
 import socket
 import logging
 import time
-import sys
+import os
 
 from threading import Thread
 from common_thread_object import CommonSocket
@@ -45,9 +45,10 @@ class Switch:
                         for planer_message in planer_messages[:-1]:
                             logging.debug(f'planner message: {planer_message}')
                             if planer_message == 'e':
-                                time.sleep(5)
+                                time.sleep(3)
                                 logging.info('exit')
-                                sys.exit(0)
+                                self.exit = True
+                                os._exit(0)
 
                             [sock_id, planer_cmd] = planer_message.split(':')
                             if sock_id not in socket_dict:
@@ -58,7 +59,8 @@ class Switch:
                                 time.sleep(self._DELAY)
 
                             # ATTENTION: only for local testing env.
-                            socket_dict[sock_id].message_to = f'{planer_cmd} '
+                            socket_dict[sock_id].message_to = str(
+                                planer_cmd).strip()
 
                             socket_dict[sock_id].ready_to_write = True
                     socket_dict[sock_name].ready_to_read = False

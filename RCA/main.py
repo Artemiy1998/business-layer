@@ -44,5 +44,6 @@ while not switch.exit:
         common_conn.start()
         switch.append(common_conn)
         print(switch.exit)
+        print('Connected')
     except Exception:
         pass

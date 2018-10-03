@@ -113,7 +113,7 @@ def add_offset(command, data_from_3d_scene, concat_symbol=CONCAT_SYMBOL,
 
     # Skip space symbols: con_pos + 2 and sep_pos - 1.
     data_to_add = command[con_pos + 2:sep_pos - 1]
-    coords = [str(int(x) + int(y)) for x, y in zip(
+    coords = [str(float(x) + float(y)) for x, y in zip(
         data_from_3d_scene.split(' '), data_to_add.split(' ')
     )]
     if command_offset is None:
@@ -143,7 +143,7 @@ def process_simple_task(task, task_loader, save_task=True):
             )
 
         # Imitation of parallel work. Need to improve this piece of code.
-        if task['Scenario'][i].get('parallel') == 'True' and \
+        if task['Scenario'][i].get('parallel') and \
            i + 1 < command_number:
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
             print('Send to', name_1, 'command:', command_1)
@@ -179,7 +179,7 @@ def process_complex_task(task, task_loader):
         process_simple_task(simple_task, task_loader, save_task=False)
 
 
-# Read all data in socket buffer.
+# Read all data from socket buffer.
 def receive(sock):
     total_data = b''
     try:
@@ -214,11 +214,13 @@ while True:
                     for robot in robo_dict:
                         message = f'{robot}: e|'
                         try:
+                            print('Send exit message to robots:', message)
                             sock_rob_ad.send(message.encode())
                             time.sleep(1)
                         except ConnectionAbortedError:
                             logging.error('RCA aborted connection')
                     try:
+                        print('Send exit message to RCA:', message)
                         sock_rob_ad.send(b'e|')
                     except ConnectionAbortedError:
                         logging.error('RCA aborted connection')

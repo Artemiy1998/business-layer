@@ -3,10 +3,10 @@ import time
 import sys
 
 
-buffer_size = 1024
+buffer_size = 2048
 
 sock_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_client.connect(('localhost', 9099))
+sock_client.connect(('192.168.1.100', 9099))
 sock_client.send(b'f')
 
 # Fanuc imitator.

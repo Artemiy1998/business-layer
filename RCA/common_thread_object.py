@@ -23,9 +23,9 @@ class CommonSocket:
         if not isinstance(ready_to_write, bool):
             raise TypeError(f'Expected bool type, got {type(ready_to_write)}.')
         self.sock = sock
-        self.sock.setblocking(False)
         self.who = sock.recv(buffer_size).decode()
         logging.info(self.who)
+        self.sock.setblocking(False)
         self.ready_to_read = ready_to_read
         self.ready_to_write = ready_to_write
         self.thread_to_read = Thread(name=f'{self.who}_read',
@@ -56,6 +56,7 @@ class CommonSocket:
                 self.message_from = self.recv()
                 if self.message_from:
                     logging.info(f'{self.who} -> {self.message_from}')
+                    print(f'Read {self.who} -> {self.message_from}')
                     self.ready_to_read = True
             else:
                 time.sleep(self._DELAY)
@@ -66,9 +67,9 @@ class CommonSocket:
         while True:
             if self.ready_to_write:
                 logging.info(f'{self.who} <- {self.message_to}')
+                print(f'Send {self.who} <- {self.message_to}')
                 try:
                     self.sock.send(self.message_to.encode())
-                    print('Send', self.message_to)
                     self.ready_to_write = False
                 except Exception:
                     pass

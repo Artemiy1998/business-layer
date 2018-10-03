@@ -36,7 +36,7 @@ listen_var = int(config['PARAMS']['Listen'])
 
 # print(socket.gethostbyname(socket.gethostname()))
 
-test_ip = 'localhost'  # '192.168.0.177'
+test_ip = '192.168.1.100'  # '192.168.0.177' 'localhost'
 
 address_client = (test_ip, port_cl_ad)
 address_3dScene = (host, port_3d_scene)
@@ -145,7 +145,7 @@ def process_multiple_json(message):
     return result
 
 
-# Read all data in socket buffer.
+# Read all data from socket buffer.
 def receive(sock):
     total_data = b''
     try:
@@ -166,7 +166,6 @@ while True:
     client_Socket_Conn.setblocking(False)
     print('Connect', client_Socket_Address)
     while True:
-        print('Command iteration:', count)
         data = ''
         messages = []
         try:
@@ -200,7 +199,7 @@ while True:
                         print('Send exit commands')
                         socket_3dScene.send(b'e')
                         logging.info('Send 3dScene e')
-                        socket_Planner.send(b'e')
+                        socket_Planner.send(b'e|')
                         logging.info('Send Planner e')
                         socket_Planner.close()
                         logging.info('Planner disconnect')

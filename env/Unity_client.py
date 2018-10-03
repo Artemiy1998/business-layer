@@ -3,7 +3,7 @@ import json
 import time
 
 
-buffer_size = 1024
+buffer_size = 2048
 
 
 def _create_task(flag='0', task_name='moving', parallel=False,
@@ -14,7 +14,7 @@ def _create_task(flag='0', task_name='moving', parallel=False,
         'name': str(task_name),
         'Scenario': [
             {
-                'parallel': str(parallel),
+                'parallel': parallel,
                 'name': str(robot_name),
                 'time': str(task_time),
                 'energy': str(enrg),
@@ -51,7 +51,7 @@ def create_simple_parallel_task(flag='0', task_name='moving_together',
                                 energy=energy[:-1],
                                 commands=commands[:-1])
     data_to_send['Scenario'].append({
-        'parallel': 'False',
+        'parallel': False,
         'name': str(robot_names[-1]),
         'time': str(tasks_time[-1]),
         'energy': str(energy[-1]),
@@ -84,7 +84,7 @@ def create_complex_parallel_task(flag='0', task_name='moving_difficult2',
                                 energy=empty_list,
                                 commands=commands[:-1])
     data_to_send['Scenario'].append({
-        'parallel': 'False',
+        'parallel': False,
         'name': '',
         'time': '',
         'energy': '',
@@ -259,9 +259,18 @@ def send_unparallel_simple_task_with_parameter_and_offset(sock):
     send_data(data_to_send, sock)
 
 
+def send_exit_command(sock):
+    data_to_send = {
+        'flag': 'e',
+        'name': '',
+        'Scenario': []
+    }
+    send_data(data_to_send, sock)
+
+
 cl_adapter_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port_cl_adapter = 9090
-cl_adapter_sock.connect(('localhost', port_cl_adapter))
+cl_adapter_sock.connect(('192.168.1.100', port_cl_adapter))
 
 print('Options:\n'
       '1: send simple tasks\n'
@@ -273,9 +282,12 @@ print('Options:\n'
       '0: exit')
 
 delay = 3
-inp = input('Enter some key [1-5] to start or 0 to exit: ')
-while inp != '0':
-    if inp == '1':
+while True:
+    inp = input('Enter some key [1-6] to continue or 0 to exit: ')
+    if inp == '0':
+        send_exit_command(cl_adapter_sock)
+        break
+    elif inp == '1':
         send_unparallel_simple_tasks(cl_adapter_sock)
         send_parallel_simple_tasks(cl_adapter_sock)
         time.sleep(delay)
@@ -297,4 +309,3 @@ while inp != '0':
         print('Not found command. Please, try again.')
 
     time.sleep(delay)
-    inp = input('Enter some key [1-5] to continue or 0 to exit: ')
