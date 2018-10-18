@@ -104,20 +104,11 @@ def create_command_from_input():
     energy = []
     commands = []
     for _ in range(task_number):
-        inp_str = input('parallel: ')
-        parallel.append(inp_str)
-
-        inp_str = input('name: ')
-        robot_names.append(inp_str)
-
-        inp_str = input('time: ')
-        tasks_time.append(inp_str)
-
-        inp_str = input('energy: ')
-        energy.append(inp_str)
-
-        inp_str = input('command: ')
-        commands.append(inp_str)
+        parallel.append(input('parallel: '))
+        robot_names.append(input('name: '))
+        tasks_time.append(input('time: '))
+        energy.append(input('energy: '))
+        commands.append(input('command: '))
 
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
