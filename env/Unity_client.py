@@ -104,11 +104,20 @@ def create_command_from_input():
     energy = []
     commands = []
     for _ in range(task_number):
-        parallel.append(input('parallel: '))
-        robot_names.append(input('name: '))
-        tasks_time.append(input('time: '))
-        energy.append(input('energy: '))
-        commands.append(input('command: '))
+        inp_str = input('parallel: ')
+        parallel.append(inp_str)
+
+        inp_str = input('name: ')
+        robot_names.append(inp_str)
+
+        inp_str = input('time: ')
+        tasks_time.append(inp_str)
+
+        inp_str = input('energy: ')
+        energy.append(inp_str)
+
+        inp_str = input('command: ')
+        commands.append(inp_str)
 
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
@@ -202,7 +211,7 @@ def send_get_scene_request(sock):
     data_json = json.dumps(data_to_send)
     sock.send(data_json.encode())
     data = sock.recv(buffer_size).decode()
-    print('Response from 3d scene:', data)
+    print('Response from scene3d:', data)
 
 
 def send_unparallel_simple_task_with_parameter(sock):

@@ -43,7 +43,6 @@ while not switch.exit:
         common_conn = CommonSocket(conn, False, False)
         common_conn.start()
         switch.append(common_conn)
-        print(switch.exit)
-        print('Connected')
+        print('Received connection, status:', switch.exit)
     except Exception:
         pass
