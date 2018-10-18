@@ -6,7 +6,7 @@ import sys
 buffer_size = 2048
 
 sock_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_client.connect(('192.168.1.100', 9099))
+sock_client.connect(('localhost', 9099))
 sock_client.send(b't')
 
 # Telega imitator.
@@ -20,7 +20,7 @@ while True:
             sys.exit()
         if not message:
             continue
-        # Return formatted message with cube key.
-        response = f'"cube": "{message[3:-1]}"|'
+        # Return formatted message with data key.
+        response = f'"data": "{message[3:-1]}"|'
         time.sleep(1)
         sock_client.send(response.encode())

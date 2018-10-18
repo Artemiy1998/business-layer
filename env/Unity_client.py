@@ -212,7 +212,7 @@ def send_unparallel_simple_task_with_parameter(sock):
         robot_names=['f', 't'],
         tasks_time=[2, 2],
         energy=[3, 3],
-        commands=['m 4 1 0 1 0 0 0', 'm $cube$ 0']
+        commands=['m 4 1 0 1 0 0 0', 'm data 0']
     )
     send_data(data_to_send, sock)
 
@@ -224,7 +224,7 @@ def send_parallel_simple_task_with_parameter(sock):
         robot_names=['f', 'f'],
         tasks_time=[1, 2],
         energy=[3, 3],
-        commands=['m 5 1 1 1 0 0 0', 'm $cube$ 0']
+        commands=['m 5 1 1 1 0 0 0', 'm $data$ 0']
     )
     send_data(data_to_send, sock)
 
@@ -254,7 +254,7 @@ def send_unparallel_simple_task_with_parameter_and_offset(sock):
         robot_names=['f', 'f'],
         tasks_time=[1, 2],
         energy=[3, 3],
-        commands=['m 6 1 1 1 0 0 0', 'm $cube$ + 10 20 30 40 50 60 ! 0']
+        commands=['m 6 1 1 1 0 0 0', 'm data + 10 20 30 40 50 60 ! 0']
     )
     send_data(data_to_send, sock)
 
@@ -270,7 +270,7 @@ def send_exit_command(sock):
 
 cl_adapter_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port_cl_adapter = 9090
-cl_adapter_sock.connect(('192.168.1.100', port_cl_adapter))
+cl_adapter_sock.connect(('localhost', port_cl_adapter))
 
 print('Options:\n'
       '1: send simple tasks\n'

@@ -1,12 +1,3 @@
-"""
-@author Morozov Artemii
-Documentation for Client Adapter module.
-
-@brief Client Adapter module performs the
-communication of Business Layer with client.
-"""
-
-
 import socket
 import json
 import time
@@ -31,12 +22,12 @@ buffer_size = int(config['PARAMS']['Buffersize'])
 listen_var = int(config['PARAMS']['Listen'])
 # end config
 
-# TODO: fix connection to client adapter because
+# TODO: fix connection to client adapter because send
 # localhost != socket.gethostbyname(socket.gethostname())
 
 # print(socket.gethostbyname(socket.gethostname()))
 
-test_ip = '192.168.1.100'  # '192.168.0.177' 'localhost'
+test_ip = 'localhost'
 
 address_client = (test_ip, port_cl_ad)
 address_3dScene = (host, port_3d_scene)

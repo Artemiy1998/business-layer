@@ -1,11 +1,3 @@
-"""
-@author Artemii Morozov and Urazov Dilshod
-Documentation for Planner module
-
-@brief Now planner do nothing but transfer
-"""
-
-
 import os
 import socket
 import sys
