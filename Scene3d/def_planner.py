@@ -21,26 +21,28 @@ def planner_func(client, json_data):
     while True:
         try:
             message = client.recv(buffer_size).decode()
-            logging.info(f'def_planer recv {message}')
-            print(f'def_planner recv', message)
+            if message:
+                logging.info(f'def_planer recv {message}')
+                print(f'def_planner recv', message)
 
-            if message == 'get_scene':
-                data = json_data.get()
-                client.send(data.encode())
+                if message == 'get_scene':
+                    data = json_data.get()
+                    client.send(data.encode())
 
-                logging.info(f'planner send {data}')
-                print(f'planner send', data)
-            elif message.startswith('get '):
-                # Skip 'get ' in received message, clear from special symbols.
-                parameter_name = _clear_parameter_name(message[4:])
-                response = json_data.get_by_parameter(parameter_name)
+                    logging.info(f'planner send {data}')
+                    print(f'planner send', data)
+                elif message.startswith('get '):
+                    # Skip 'get ' in received message, clear from special
+                    # symbols.
+                    parameter_name = _clear_parameter_name(message[4:])
+                    response = json_data.get_by_parameter(parameter_name)
 
-                client.send(response.encode())
-                logging.info(f'planner send {response}')
-                print(f'planner send', response)
-            if json_data.exit:
-                logging.info('exit')
-                os._exit(0)
+                    client.send(response.encode())
+                    logging.info(f'planner send {response}')
+                    print(f'planner send', response)
+                if json_data.exit:
+                    logging.info('exit')
+                    os._exit(0)
         except ConnectionRefusedError:
             # logging.error('Planner disconnected. ConnectionRefusedError')
             pass

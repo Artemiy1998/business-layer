@@ -6,6 +6,7 @@ class TaskLoader:
     def __init__(self, filename='tasks.json'):
         """
         Constructor which opens file with tasks and parses it.
+
         :param filename: str, optional(default='commands.json').
             Name of the json file with tasks.
         """
@@ -16,6 +17,7 @@ class TaskLoader:
     def __getitem__(self, item):
         """
         Add dict-like interface: loader[item]
+
         :param item: str.
             Task name in file.
         :return: int, float, str, dict, list, bool, None.

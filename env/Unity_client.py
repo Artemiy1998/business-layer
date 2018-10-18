@@ -202,7 +202,7 @@ def send_get_scene_request(sock):
     data_json = json.dumps(data_to_send)
     sock.send(data_json.encode())
     data = sock.recv(buffer_size).decode()
-    print('Response from 3d scene:', data)
+    print('Response from scene3d:', data)
 
 
 def send_unparallel_simple_task_with_parameter(sock):

@@ -17,19 +17,20 @@ def client_adapter_func(client, json_data):
     while True:
         try:
             message = client.recv(buffer_size).decode()
-            logging.info(f'def_client_adapter {message}')
-            print(f'def_client_adapter {message}')
+            if message:
+                logging.info(f'def_client_adapter {message}')
+                print(f'def_client_adapter {message}')
 
-            if message == 'get_scene':
-                data = json_data.get()
-                client.send(data.encode())
+                if message == 'get_scene':
+                    data = json_data.get()
+                    client.send(data.encode())
 
-                logging.info(f'client send {data}')
-                print(f'client send {data}')
-            if message == 'e':
-                json_data.exit = True
-                logging.info('exit')
-                sys.exit(0)
+                    logging.info(f'client send {data}')
+                    print(f'client send {data}')
+                if message == 'e':
+                    json_data.exit = True
+                    logging.info('exit')
+                    sys.exit(0)
         except ConnectionRefusedError:
             # logging.error('Planner disconnected. ConnectionRefusedError')
             pass
