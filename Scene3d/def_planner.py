@@ -1,29 +1,53 @@
-import os
 import logging
-logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s', level=logging.DEBUG, filename='scene3d.log')
+import os
+
+
+logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
+                    level=logging.DEBUG, filename='scene3d.log')
+
+buffer_size = 1024
+
+
+def _clear_parameter_name(parameter):
+    return parameter[1:-1]
+
+
 def planner_func(client, json_data):
     """
     @brief This Function send planer current state system
     :param client: socket client
     :param json_data: data in json format
-    :return:
     """
     while True:
-        data = json_data.get()
         try:
-            message = client.recv(1024).decode()
+            message = client.recv(buffer_size).decode()
+            logging.info(f'def_planer recv {message}')
+            print(f'def_planner recv', message)
 
-            if message == "get_scene":
-                logging.info('def_planer recv ' + message)
+            if message == 'get_scene':
+                data = json_data.get()
                 client.send(data.encode())
-                logging.info('planner send')
+
+                logging.info(f'planner send {data}')
+                print(f'planner send', data)
+            elif message.startswith('get '):
+                # Skip 'get ' in received message, clear from special symbols.
+                parameter_name = _clear_parameter_name(message[4:])
+                response = json_data.get_by_parameter(parameter_name)
+
+                client.send(response.encode())
+                logging.info(f'planner send {response}')
+                print(f'planner send', response)
             if json_data.exit:
                 logging.info('exit')
                 os._exit(0)
         except ConnectionRefusedError:
-            logging.error('Planner disconnected. ConnectionRefusedError')
+            # logging.error('Planner disconnected. ConnectionRefusedError')
+            pass
         except ConnectionAbortedError:
-            logging.error('Planner disconnected. ConnectionAbortedError')
+            # logging.error('Planner disconnected. ConnectionAbortedError')
+            pass
         except ConnectionResetError:
-            logging.error('Planner disconnected. ConnectionResetError')
-    client.close()
+            # logging.error('Planner disconnected. ConnectionResetError')
+            pass
+    # client.close()
