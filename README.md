@@ -1,4 +1,6 @@
 # Business Layer
+[![CodeFactor](https://www.codefactor.io/repository/github/robot-lab/rcs-business-layer/badge)](https://www.codefactor.io/repository/github/robot-lab/rcs-business-layer)
+
 Business Layer of Robot Control System.
 
 ## What's in the box?
