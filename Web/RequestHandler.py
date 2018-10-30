@@ -6,7 +6,7 @@ import xmltodict
 
 class MyRequestHandler(BaseHTTPRequestHandler):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('192.168.1.104', 9090))
+    sock.connect(('192.168.1.42', 9090))
 
     def _set_response(self):
         self.send_response(200)
@@ -21,8 +21,10 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         post_data = self.rfile.read(int(self.headers.get('content-length')))
         xml = post_data.decode('utf-8')
         dict_ = xmltodict.parse(xml)
-        print(dict_)
-        in_json = json.dumps(dict_.get('root'))
+        a = dict(dict_.get('root'))
+        a["Scenario"] = a["Scenario"]["element"]
+        print(a)
+        in_json = json.dumps(a)
         print(in_json)
 
         try:
