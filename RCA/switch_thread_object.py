@@ -69,7 +69,10 @@ class Switch:
                     if messages:
                         messages = messages.split('|')
                         for message in messages:
+                            if  message and sock_name != 'p':
+                                message = message[:-2]+'"'
                             logging.debug(f'{sock_name} message: {message}')
-                            self.scene_3d_sock.send(message.encode())
+                            if message:
+                                self.scene_3d_sock.send(message.encode())
                     socket_dict[sock_name].ready_to_read = False
             del socket_dict

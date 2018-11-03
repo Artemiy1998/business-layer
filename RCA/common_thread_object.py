@@ -61,7 +61,7 @@ class CommonSocket:
                 if self.message_from:
                     logging.info(f'{self.who} -> {self.message_from}')
                     try:
-                        self.message_from = self.message_from.replace('robot', robot_dict[self.who])[:-3]+'"'
+                        self.message_from = self.message_from.replace('robot', robot_dict[self.who])
                     except Exception:
                         pass
                     print(f'Read {self.who} -> {self.message_from}')
