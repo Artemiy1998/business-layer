@@ -14,6 +14,9 @@ logging.basicConfig(
 buffer_size = 1024
 
 
+robot_dict = {'f': 'fanuc', 't': 'telega'}
+
+
 class CommonSocket:
     def __init__(self, sock, ready_to_read, ready_to_write):
         if not isinstance(sock, socket.socket):
@@ -37,6 +40,7 @@ class CommonSocket:
         self.exit = False
         self._DELAY = 0.01
 
+
     def recv(self):
         total_data = b''
         try:
@@ -56,6 +60,10 @@ class CommonSocket:
                 self.message_from = self.recv()
                 if self.message_from:
                     logging.info(f'{self.who} -> {self.message_from}')
+                    try:
+                        self.message_from = self.message_from.replace('robot', robot_dict[self.who])[:-3]+'"'
+                    except Exception:
+                        pass
                     print(f'Read {self.who} -> {self.message_from}')
                     self.ready_to_read = True
             else:

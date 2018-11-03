@@ -135,7 +135,8 @@ def process_simple_task(task, task_loader, save_task=True):
             )
 
         # Imitation of parallel work. Need to improve this piece of code.
-        if task['Scenario'][i].get('parallel') and \
+        print(type(task['Scenario'][i].get('parallel')), bool(task['Scenario'][i].get('parallel')))
+        if bool(task['Scenario'][i].get('parallel') == "true") and \
            i + 1 < command_number:
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
             print('Send to', name_1, 'command:', command_1)
