@@ -2,8 +2,9 @@ import json
 import time
 import logging
 import sys
+import os
 
-from threading import Thread
+from threading import Thread, RLock
 
 
 logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
@@ -17,7 +18,7 @@ class ClientAdapter:
                  client_socket_conn, client_socket_address,
                  address_scene3d, socket_scene3d,
                  address_planner, socket_planner,
-                 buffer_size, message_error=b'Error!'):
+                 buffer_size, message_error=b'Error!', clients=None):
 
         self.client_socket_conn = client_socket_conn
         self.client_socket_address = client_socket_address
@@ -31,10 +32,12 @@ class ClientAdapter:
 
         self.buffer_size = buffer_size
         self.message_error = message_error
+        self.clients = clients
 
         self.data_json = None
         self.thread_to_work = Thread(name=f'UClient-{address_client}',
                                      target=self.work)
+        self.lock = RLock()
 
     def except_func(self, def_send, socket_component, socket_address,
                     socket_another_component):
@@ -135,6 +138,10 @@ class ClientAdapter:
         return total_data.decode()
 
     def work(self):
+        self.lock.acquire()
+        self.clients.append(self)
+        self.lock.release()
+
         count = 0
         self.client_socket_conn.setblocking(False)
         while True:
@@ -167,19 +174,26 @@ class ClientAdapter:
                             data_send_byte = self.send_scene3d()
                             self.client_socket_conn.send(data_send_byte)
                         elif self.data_json.get('flag') == 'e':
-                            print('Send exit commands')
-                            self.socket_scene3d.send(b'e')
-                            logging.info('Send Scene3d e')
-                            self.socket_planner.send(b'e|')
-                            logging.info('Send Planner e')
-                            self.socket_planner.close()
-                            logging.info('Planner disconnect')
-                            self.socket_scene3d.close()
-                            logging.info('Scene3d disconnect')
-                            self.client_socket_conn.close()
-                            logging.info('Client disconnect')
-                            time.sleep(3)
-                            sys.exit(0)  # Planning crash for test builds.
+                            self.lock.acquire()
+                            self.clients.pop()
+                            self.lock.release()
+
+                            if not self.clients:
+                                print('Send exit commands')
+                                self.socket_scene3d.send(b'e')
+                                logging.info('Send Scene3d e')
+                                self.socket_planner.send(b'e|')
+                                logging.info('Send Planner e')
+                                self.socket_planner.close()
+                                logging.info('Planner disconnect')
+                                self.socket_scene3d.close()
+                                logging.info('Scene3d disconnect')
+                                self.client_socket_conn.close()
+                                logging.info('Client disconnect')
+                                time.sleep(3)
+                                os._exit(0)  # Planning crash for test builds.
+                            else:
+                                print('Not the last connection interrupted.')
                     except AttributeError:
                         logging.error('Not JSON')
                 else:
