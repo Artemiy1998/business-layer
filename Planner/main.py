@@ -51,7 +51,7 @@ try:
     sock_3d_scene.connect((host, port_3d_scene))
     sock_3d_scene.send(b'planner')
 except ConnectionRefusedError:
-    logging.error('3dscene refused connection')
+    logging.error('Scene3d refused connection')
 
 sock_serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock_serv.bind((host, port_planner))
@@ -67,6 +67,8 @@ def get_scene():
 
 
 def data_convert_json_to_str_byte(name, cmd):
+    if cmd == 'sensors':
+        cmd = 'f'
     data_str_byte = f'{name}: {cmd}|'.encode()
     print(data_str_byte)
     return data_str_byte

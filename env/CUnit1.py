@@ -6,7 +6,7 @@ import sys
 buffer_size = 2048
 
 sock_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_client.connect(('localhost', 9099))
+sock_client.connect(('192.168.1.105', 9099))
 sock_client.send(b'f')
 
 # Fanuc imitator.
@@ -21,6 +21,6 @@ while True:
         if not message:
             continue
         # Return formatted message with data.
-        response = f'"data": "{message[3:-1]}"|'
+        response = f'"fanuc": "{message[2:-2]}"|'
         time.sleep(1)
         sock_client.send(response.encode())

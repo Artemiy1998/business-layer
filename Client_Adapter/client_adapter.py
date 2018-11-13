@@ -87,7 +87,7 @@ class ClientAdapter:
         try:
             self.socket_scene3d.send(str(self.data_json.get('name')).encode())
             data_into_3d_scene = self.socket_scene3d.recv(self.buffer_size)
-            print('Response from 3d scene:', data_into_3d_scene.decode())
+            print('Response from scene3d:', data_into_3d_scene.decode())
             return data_into_3d_scene
         except ConnectionRefusedError:
             logging.error('ConnectionRefusedError')
@@ -144,6 +144,7 @@ class ClientAdapter:
 
         count = 0
         self.client_socket_conn.setblocking(False)
+        print(f'Connected {self.client_socket_address}')
         while True:
             data = ''
             try:
