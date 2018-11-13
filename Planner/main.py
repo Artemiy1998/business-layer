@@ -123,7 +123,7 @@ def checker(command, result):
     if command == result:
         return True
     for c,r in set(zip(command.split(' '), result.split(' '))):
-        if abs(int(c)-int(r)) > 2:
+        if abs(int(c)-int(r)) > 10:
             return False
     return True
 
