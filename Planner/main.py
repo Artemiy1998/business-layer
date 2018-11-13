@@ -183,7 +183,8 @@ def process_simple_task(task, task_loader, save_task=True):
                 time.sleep(3*_+3)
             if not checker(command_1, data_from_3d_scene):
                 i = command_number+1
-                pass
+                sock_3d_scene.send(f"set Error {rd[name_1]} in {command_1}".encode())
+                print(f"Error {rd[name_1]} in {command_1}")
                 # Todo set status - error
         i += 1
 

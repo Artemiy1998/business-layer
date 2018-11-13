@@ -14,8 +14,18 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        self._set_response()
-        self.wfile.write("GET request for {}".format(self.path).encode('utf-8'))
+        data_to_send = {
+            'flag': str(1),
+            'name': 'get_scene',
+            'Scenario': []
+        }
+        data_json = json.dumps(data_to_send)
+        MyRequestHandler.sock.send(data_json.encode('utf-8'))
+        b = MyRequestHandler.sock.recv(10000)
+        self.send_response(200)
+        self.send_header("content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(b)
 
     def do_POST(self):
         post_data = self.rfile.read(int(self.headers.get('content-length')))
