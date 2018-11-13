@@ -26,7 +26,7 @@ listen_var = int(config['PARAMS']['Listen'])
 
 # print(socket.gethostbyname(socket.gethostname()))
 
-test_ip = '192.168.1.42'
+test_ip = 'localhost'
 
 address_client = (test_ip, port_cl_ad)
 address_scene3d = (host, port_scene3d)

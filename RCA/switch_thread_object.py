@@ -69,7 +69,7 @@ class Switch:
                     if messages:
                         messages = messages.split('|')
                         for message in messages:
-                            if  message and sock_name != 'p':
+                            if message and sock_name != 'p':
                                 message = message[:-2]+'"'
                             logging.debug(f'{sock_name} message: {message}')
                             if message:

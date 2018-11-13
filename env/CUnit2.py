@@ -21,6 +21,6 @@ while True:
         if not message:
             continue
         # Return formatted message with data key.
-        response = f'"data": "{message[3:-1]}"|'
+        response = f'"data": "{message[3:-1]} "|'
         time.sleep(1)
         sock_client.send(response.encode())

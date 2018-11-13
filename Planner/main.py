@@ -37,6 +37,7 @@ buffer_size = int(config['PARAMS']['Buffersize'])
 
 who = 'p'
 robo_dict = ['f', 't']
+rd = {'f':'fanuc', 't':'telega'}
 # end config
 
 sock_rob_ad = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -115,6 +116,18 @@ def add_offset(command, data_from_3d_scene, concat_symbol=CONCAT_SYMBOL,
     raise NotImplementedError('Need to add processing for non-standard offset')
 
 
+def checker(command, result):
+    if 'm' not in command:
+        return True
+    command = command[2:]
+    if command == result:
+        return True
+    for c,r in set(zip(command.split(' '), result.split(' '))):
+        if abs(int(c)-int(r)) > 2:
+            return False
+    return True
+
+
 def process_simple_task(task, task_loader, save_task=True):
     if save_task:
         task_loader.save_task(task)
@@ -135,7 +148,6 @@ def process_simple_task(task, task_loader, save_task=True):
             )
 
         # Imitation of parallel work. Need to improve this piece of code.
-        print(type(task['Scenario'][i].get('parallel')), bool(task['Scenario'][i].get('parallel')))
         if bool(task['Scenario'][i].get('parallel') == "True") and \
            i + 1 < command_number:
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
@@ -158,8 +170,21 @@ def process_simple_task(task, task_loader, save_task=True):
             i += 1
         else:
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
-            print('Send to', name_1, 'command:', command_1)
-            time.sleep(time_1)
+            print('Send to', name_1, 'command:', command_1[2:])
+            time.sleep(time_1+3)
+            data_from_3d_scene = ""
+            for _ in range(3):
+                sock_3d_scene.send(f"get ${rd[name_1]}$".encode())
+                data_from_3d_scene = sock_3d_scene.recv(buffer_size).decode()
+                print(data_from_3d_scene)
+                if checker(command_1, data_from_3d_scene):
+                    break
+
+                time.sleep(3*_+3)
+            if not checker(command_1, data_from_3d_scene):
+                i = command_number+1
+                pass
+                # Todo set status - error
         i += 1
 
 

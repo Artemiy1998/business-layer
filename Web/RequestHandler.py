@@ -6,7 +6,7 @@ import xmltodict
 
 class MyRequestHandler(BaseHTTPRequestHandler):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('192.168.1.42', 9090))
+    sock.connect(('localhost', 9090))
 
     def _set_response(self):
         self.send_response(200)
