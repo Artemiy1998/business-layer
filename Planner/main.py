@@ -206,11 +206,11 @@ def process_simple_task(task, task_loader, save_task=True):
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
             print('Send to', name_1, 'command:', command_1)
             time.sleep(time_1)
-            for i in range(3):
+            for j in range(3):
                 if check_command_execution(command_1, name_1, sock_3d_scene):
                     break
 
-                time.sleep(3 * i + 3)
+                time.sleep(3 * j + 3)
             if not check_command_execution(command_1, name_1, sock_3d_scene):
                 print(f"Error {rd[name_1]} in {command_1}")
                 break
