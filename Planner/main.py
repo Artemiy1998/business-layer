@@ -37,7 +37,7 @@ buffer_size = int(config['PARAMS']['Buffersize'])
 
 who = 'p'
 robo_dict = ['f', 't']
-rd = {'f': 'fanuc', 't': 'telega'}
+rd = {'f': 'fanuc_world', 't': 'telega'}
 # end config
 
 sock_rob_ad = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -123,16 +123,21 @@ def get_data_from_scene_and_compare(sent_command, receiver, sock_scene3d):
 
     # Remove all blank chars and last parameter.
     coords_to_check = sent_command.strip()[1:-1].strip()
+    print(f"coords to check {coords_to_check}")
     if rd[receiver] in data_from_scene3d:
         # Remove all blank chars.
         coords_for_check = data_from_scene3d[rd[receiver]].strip()
+        print(f"coords for check {coords_for_check}")
         if coords_to_check == coords_for_check:
             return True
         
         for c, r in set(zip(coords_to_check.split(' '),
                             coords_for_check.split(' '))):
-            if abs(float(c) - float(r)) > EPS:
+            if abs(abs(float(c)) - abs(float(r))) > EPS:
+                print(float(c))
+                print(float(r))
                 return False
+        return True
 
     return None
 
@@ -207,14 +212,15 @@ def process_simple_task(task, task_loader, save_task=True):
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
             print('Send to', name_1, 'command:', command_1)
             time.sleep(time_1)
-            for j in range(3):
-                if check_command_execution(command_1, name_1, sock_3d_scene):
-                    break
+            if 'm' in command_1:
+                for j in range(3):
+                    if check_command_execution(command_1, name_1, sock_3d_scene):
+                        break
 
-                time.sleep(3 * j + 3)
-            if not check_command_execution(command_1, name_1, sock_3d_scene):
-                print(f"Error {rd[name_1]} in {command_1}")
-                break
+                    time.sleep(3 * j + 3)
+                if not check_command_execution(command_1, name_1, sock_3d_scene):
+                    print(f"Error {rd[name_1]} in {command_1}")
+                    break
         i += 1
 
 
