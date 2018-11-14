@@ -130,12 +130,10 @@ def get_data_from_scene_and_compare(sent_command, receiver, sock_scene3d):
         print(f"coords for check {coords_for_check}")
         if coords_to_check == coords_for_check:
             return True
-        
+
         for c, r in set(zip(coords_to_check.split(' '),
                             coords_for_check.split(' '))):
             if abs(abs(float(c)) - abs(float(r))) > EPS:
-                print(float(c))
-                print(float(r))
                 return False
         return True
 
@@ -151,13 +149,39 @@ def check_command_execution(sent_command, receiver, sock_scene3d):
     if result is not None:
         if not result:
             sock_scene3d.send(b'set "status": "error_command"')
+            print("Status: error_command")
+            logging.info("Status: error_command")
             return False
-        else:
-            sock_scene3d.send(b'set "status": "ok"')
-            return True
-    else:
-        sock_scene3d.send(b'set "status": "error_object"')
-        return False
+
+        sock_scene3d.send(b'set "status": "ok"')
+        print("Status: ok")
+        logging.info("Status: ok")
+        return True
+
+    sock_scene3d.send(b'set "status": "error_object"')
+    print("Status: error_object")
+    logging.info("Status: error_object")
+    return False
+
+
+def check_execution_with_delay(sent_command, receiver, sock_scene3d,
+                               checks_number=3, time_delay=1):
+    # Check command execution with some delays.
+    if 'm' in sent_command:
+        is_executed = False
+        for j in range(checks_number):
+            if check_command_execution(sent_command, receiver,
+                                       sock_scene3d):
+                is_executed = True
+                break
+
+            time.sleep(time_delay * j + time_delay)
+
+        if not is_executed:
+            print(f"Error: {rd[receiver]} in {sent_command}")
+            return False
+
+    return True
 
 
 def process_simple_task(task, task_loader, save_task=True):
@@ -203,7 +227,11 @@ def process_simple_task(task, task_loader, save_task=True):
             check_1 = check_command_execution(command_1, name_1, sock_3d_scene)
             check_2 = check_command_execution(command_2, name_2, sock_3d_scene)
 
-            if not (check_1 and check_2):
+            if not check_1:
+                print(f"Error: {rd[name_1]} in {command_1}")
+                break
+            if not check_2:
+                print(f"Error: {rd[name_2]} in {command_2}")
                 break
 
             i += 1
@@ -212,15 +240,11 @@ def process_simple_task(task, task_loader, save_task=True):
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
             print('Send to', name_1, 'command:', command_1)
             time.sleep(time_1)
-            if 'm' in command_1:
-                for j in range(3):
-                    if check_command_execution(command_1, name_1, sock_3d_scene):
-                        break
 
-                    time.sleep(3 * j + 3)
-                if not check_command_execution(command_1, name_1, sock_3d_scene):
-                    print(f"Error {rd[name_1]} in {command_1}")
-                    break
+            if not check_execution_with_delay(command_1, name_1,
+                                              sock_3d_scene):
+                break
+
         i += 1
 
 
@@ -304,7 +328,3 @@ while True:
 
     # TODO: добавить сюда отказоустойчивость при отловке какого либо
     # осключения. чтобы он постоянно не спамил названием этой ошибки.
-
-    # TODO: Поставить еще один цикл внешний.
-
-    # TODO: Логирование.
