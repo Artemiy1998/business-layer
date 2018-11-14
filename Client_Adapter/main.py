@@ -1,7 +1,6 @@
 import socket
 import configparser
 import os
-import logging
 
 from client_adapter import ClientAdapter
 
@@ -23,12 +22,11 @@ listen_var = int(config['PARAMS']['Listen'])
 
 # TODO: fix connection to client adapter because send
 # localhost != socket.gethostbyname(socket.gethostname())
+# If we want to separate client adapter on dedicated server.
 
 # print(socket.gethostbyname(socket.gethostname()))
 
-test_ip = 'localhost'
-
-address_client = (test_ip, port_cl_ad)
+address_client = (host, port_cl_ad)
 address_scene3d = (host, port_scene3d)
 address_planner = (host, port_planner)
 

@@ -37,7 +37,7 @@ buffer_size = int(config['PARAMS']['Buffersize'])
 
 who = 'p'
 robo_dict = ['f', 't']
-rd = {'f':'fanuc', 't':'telega'}
+rd = {'f': 'fanuc', 't': 'telega'}
 # end config
 
 sock_rob_ad = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -52,7 +52,7 @@ try:
     sock_3d_scene.connect((host, port_3d_scene))
     sock_3d_scene.send(b'planner')
 except ConnectionRefusedError:
-    logging.error('3dscene refused connection')
+    logging.error('Scene3d refused connection')
 
 sock_serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock_serv.bind((host, port_planner))
@@ -61,13 +61,12 @@ sock_serv.listen(1)
 SPECIAL_SYMBOL = '$'
 CONCAT_SYMBOL = '+'
 SEPARATED_SYMBOL = '!'
-
-
-def get_scene():
-    sock_3d_scene.send(b'get_scene')
+EPS = 10
 
 
 def data_convert_json_to_str_byte(name, cmd):
+    if cmd == 'sensors':
+        cmd = 'f'
     data_str_byte = f'{name}: {cmd}|'.encode()
     print(data_str_byte)
     return data_str_byte
@@ -84,9 +83,9 @@ def find_parameter(command, symbol=SPECIAL_SYMBOL):
     return None
 
 
-def get_data_and_replace_parameter(command, parameter, sock):
-    sock.send(f'get {parameter}'.encode())
-    data_from_3d_scene = sock.recv(buffer_size).decode()
+def get_data_and_replace_parameter(command, parameter, sock_scene3d):
+    sock_scene3d.send(f'get {parameter}'.encode())
+    data_from_3d_scene = sock_scene3d.recv(buffer_size).decode()
     new_command = command.replace(parameter, data_from_3d_scene)
     return add_offset(new_command, data_from_3d_scene)
 
@@ -116,16 +115,43 @@ def add_offset(command, data_from_3d_scene, concat_symbol=CONCAT_SYMBOL,
     raise NotImplementedError('Need to add processing for non-standard offset')
 
 
-def checker(command, result):
-    if 'm' not in command:
+def get_data_from_scene_and_compare(sent_command, receiver, sock_scene3d):
+    # Get all data from scene3d.
+    sock_scene3d.send(b'get_scene')
+    data_from_scene3d = sock_scene3d.recv(buffer_size).decode()
+    data_from_scene3d = json.loads(data_from_scene3d)
+
+    # Remove all blank chars and last parameter.
+    coords_to_check = sent_command.strip()[1:-1].strip()
+    if receiver in data_from_scene3d:
+        # Remove all blank chars.
+        coords_for_check = data_from_scene3d[rd[receiver]].strip()
+        if coords_to_check == coords_for_check:
+            return True
+        
+        for c, r in set(zip(command.split(' '), result.split(' '))):
+            if abs(float(c) - float(r)) > EPS:
+                return False
+
+    return None
+
+
+def check_command_execution(sent_command, receiver, sock_scene3d):
+    if 'm' not in sent_command:
         return True
-    command = command[2:]
-    if command == result:
-        return True
-    for c,r in set(zip(command.split(' '), result.split(' '))):
-        if abs(int(c)-int(r)) > 10:
+
+    result = get_data_from_scene_and_compare(sent_command, receiver,
+                                             sock_scene3d)
+    if result is not None:
+        if not result:
+            sock_scene3d.send(b'set "status": "error_command"')
             return False
-    return True
+        else:
+            sock_scene3d.send(b'set "status": "ok"')
+            return True
+    else:
+        sock_scene3d.send(b'set "status": "error_object"')
+        return False
 
 
 def process_simple_task(task, task_loader, save_task=True):
@@ -167,25 +193,27 @@ def process_simple_task(task, task_loader, save_task=True):
 
             time_2 = int(task['Scenario'][i + 1].get('time'))
             time.sleep(max(time_1, time_2))
+
+            check_1 = check_command_execution(command_1, name_1, sock_3d_scene)
+            check_2 = check_command_execution(command_2, name_2, sock_3d_scene)
+
+            if not (check_1 and check_2):
+                break
+
             i += 1
+
         else:
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
-            print('Send to', name_1, 'command:', command_1[2:])
-            time.sleep(time_1+3)
-            data_from_3d_scene = ""
-            for _ in range(3):
-                sock_3d_scene.send(f"get ${rd[name_1]}$".encode())
-                data_from_3d_scene = sock_3d_scene.recv(buffer_size).decode()
-                print(data_from_3d_scene)
-                if checker(command_1, data_from_3d_scene):
+            print('Send to', name_1, 'command:', command_1)
+            time.sleep(time_1)
+            for j in range(3):
+                if check_command_execution(command_1, name_1, sock_3d_scene):
                     break
 
-                time.sleep(3*_+3)
-            if not checker(command_1, data_from_3d_scene):
-                i = command_number+1
-                sock_3d_scene.send(f"set Error {rd[name_1]} in {command_1}".encode())
+                time.sleep(3 * j + 3)
+            if not check_command_execution(command_1, name_1, sock_3d_scene):
                 print(f"Error {rd[name_1]} in {command_1}")
-                # Todo set status - error
+                break
         i += 1
 
 

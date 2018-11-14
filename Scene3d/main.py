@@ -14,7 +14,7 @@ logging.basicConfig(format=u' %(levelname)-8s [%(asctime)s] %(message)s',
                     level=logging.DEBUG, filename='scene3d.log')
 
 # config
-logging.info('3dScene start')
+logging.info('Scene3d start')
 config_file = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     'configBL.ini'

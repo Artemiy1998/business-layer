@@ -21,6 +21,6 @@ while True:
         if not message:
             continue
         # Return formatted message with data.
-        response = f'"fanuc": "0 0 0 0 0 0 "|'
+        response = f'"fanuc": "{message[2:-2]} "|'
         time.sleep(1)
         sock_client.send(response.encode())
