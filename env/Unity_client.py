@@ -270,7 +270,7 @@ def send_exit_command(sock):
 
 cl_adapter_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port_cl_adapter = 9090
-cl_adapter_sock.connect(('192.168.1.105', port_cl_adapter))
+cl_adapter_sock.connect(('192.168.0.107', port_cl_adapter))
 
 print('Options:\n'
       '1: send simple tasks\n'

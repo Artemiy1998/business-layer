@@ -62,10 +62,6 @@ CONCAT_SYMBOL = '+'
 SEPARATED_SYMBOL = '!'
 
 
-def get_scene():
-    sock_3d_scene.send(b'get_scene')
-
-
 def data_convert_json_to_str_byte(name, cmd):
     if cmd == 'sensors':
         cmd = 'f'
@@ -85,9 +81,9 @@ def find_parameter(command, symbol=SPECIAL_SYMBOL):
     return None
 
 
-def get_data_and_replace_parameter(command, parameter, sock):
-    sock.send(f'get {parameter}'.encode())
-    data_from_3d_scene = sock.recv(buffer_size).decode()
+def get_data_and_replace_parameter(command, parameter, sock_scene3d):
+    sock_scene3d.send(f'get {parameter}'.encode())
+    data_from_3d_scene = sock_scene3d.recv(buffer_size).decode()
     new_command = command.replace(parameter, data_from_3d_scene)
     return add_offset(new_command, data_from_3d_scene)
 
@@ -115,6 +111,37 @@ def add_offset(command, data_from_3d_scene, concat_symbol=CONCAT_SYMBOL,
         # with space symbol. Add command coordinate at the end.
         return command[:2] + ' '.join(coords) + command[sep_pos + 1:]
     raise NotImplementedError('Need to add processing for non-standard offset')
+
+
+def get_data_from_scene_and_compare(sent_command, receiver, sock_scene3d):
+    # Get all data from scene3d.
+    sock_scene3d.send(b'get_scene')
+    data_from_scene3d = sock_scene3d.recv(buffer_size).decode()
+    data_from_scene3d = json.loads(data_from_scene3d)
+
+    # Remove all blank chars and last parameter.
+    coords_to_check = sent_command.strip()[1:-1].strip()
+    if receiver in data_from_scene3d:
+        # Remove all blank chars.
+        coords_for_check = data_from_scene3d[receiver].strip()
+        return coords_to_check == coords_for_check
+
+    return None
+
+
+def check_command_execution(sent_command, receiver, sock_scene3d):
+    result = get_data_from_scene_and_compare(sent_command, receiver,
+                                             sock_scene3d)
+    if result is not None:
+        if not result:
+            sock_scene3d.send(b'set "status": "error_command"')
+            return False
+        else:
+            sock_scene3d.send(b'set "status": "ok"')
+            return True
+    else:
+        sock_scene3d.send(b'set "status": "error_object"')
+        return False
 
 
 def process_simple_task(task, task_loader, save_task=True):
@@ -156,11 +183,24 @@ def process_simple_task(task, task_loader, save_task=True):
 
             time_2 = int(task['Scenario'][i + 1].get('time'))
             time.sleep(max(time_1, time_2))
+
+            check_1 = check_command_execution(command_1, name_1, sock_3d_scene)
+            check_2 = check_command_execution(command_2, name_2, sock_3d_scene)
+
+            if not (check_1 and check_2):
+                break
+
             i += 1
+
         else:
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
             print('Send to', name_1, 'command:', command_1)
             time.sleep(time_1)
+
+            check_1 = check_command_execution(command_1, name_1, sock_3d_scene)
+            if not check_1:
+                break
+
         i += 1
 
 

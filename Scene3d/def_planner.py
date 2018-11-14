@@ -40,6 +40,9 @@ def planner_func(client, json_data):
                     client.send(response.encode())
                     logging.info(f'planner send {response}')
                     print(f'planner send', response)
+                elif message.startswith('set '):
+                    parameter = message[4:]
+                    json_data.add(parameter)
                 if json_data.exit:
                     logging.info('exit')
                     os._exit(0)
