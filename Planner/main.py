@@ -37,6 +37,7 @@ buffer_size = int(config['PARAMS']['Buffersize'])
 
 who = 'p'
 robo_dict = ['f', 't']
+rd = {'f': 'fanuc', 't': 'telega'}
 # end config
 
 sock_rob_ad = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -60,6 +61,7 @@ sock_serv.listen(1)
 SPECIAL_SYMBOL = '$'
 CONCAT_SYMBOL = '+'
 SEPARATED_SYMBOL = '!'
+EPS = 10
 
 
 def data_convert_json_to_str_byte(name, cmd):
@@ -123,13 +125,21 @@ def get_data_from_scene_and_compare(sent_command, receiver, sock_scene3d):
     coords_to_check = sent_command.strip()[1:-1].strip()
     if receiver in data_from_scene3d:
         # Remove all blank chars.
-        coords_for_check = data_from_scene3d[receiver].strip()
-        return coords_to_check == coords_for_check
+        coords_for_check = data_from_scene3d[rd[receiver]].strip()
+        if coords_to_check == coords_for_check:
+            return True
+        
+        for c, r in set(zip(command.split(' '), result.split(' '))):
+            if abs(float(c) - float(r)) > EPS:
+                return False
 
     return None
 
 
 def check_command_execution(sent_command, receiver, sock_scene3d):
+    if 'm' not in sent_command:
+        return True
+
     result = get_data_from_scene_and_compare(sent_command, receiver,
                                              sock_scene3d)
     if result is not None:
@@ -164,7 +174,7 @@ def process_simple_task(task, task_loader, save_task=True):
             )
 
         # Imitation of parallel work. Need to improve this piece of code.
-        if task['Scenario'][i].get('parallel') and \
+        if bool(task['Scenario'][i].get('parallel') == "True") and \
            i + 1 < command_number:
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
             print('Send to', name_1, 'command:', command_1)
@@ -196,11 +206,14 @@ def process_simple_task(task, task_loader, save_task=True):
             sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
             print('Send to', name_1, 'command:', command_1)
             time.sleep(time_1)
+            for i in range(3):
+                if check_command_execution(command_1, name_1, sock_3d_scene):
+                    break
 
-            check_1 = check_command_execution(command_1, name_1, sock_3d_scene)
-            if not check_1:
+                time.sleep(3 * i + 3)
+            if not check_command_execution(command_1, name_1, sock_3d_scene):
+                print(f"Error {rd[name_1]} in {command_1}")
                 break
-
         i += 1
 
 

@@ -35,8 +35,9 @@ def planner_func(client, json_data):
                     # Skip 'get ' in received message, clear from special
                     # symbols.
                     parameter_name = _clear_parameter_name(message[4:])
+                    print(f"parametr: {parameter_name}")
                     response = json_data.get_by_parameter(parameter_name)
-
+                    print(f"response: {response}")
                     client.send(response.encode())
                     logging.info(f'planner send {response}')
                     print(f'planner send', response)

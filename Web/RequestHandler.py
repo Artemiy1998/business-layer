@@ -31,8 +31,10 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         post_data = self.rfile.read(int(self.headers.get('content-length')))
         xml = post_data.decode('utf-8')
         dict_ = xmltodict.parse(xml)
-        print(dict_)
-        in_json = json.dumps(dict_.get('root'))
+        a = dict(dict_.get('root'))
+        a["Scenario"] = a["Scenario"]["element"]
+        print(a)
+        in_json = json.dumps(a)
         print(in_json)
 
         try:
