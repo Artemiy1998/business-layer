@@ -118,18 +118,19 @@ def add_offset(command, data_from_3d_scene, concat_symbol=CONCAT_SYMBOL,
 def get_data_from_scene_and_compare(sent_command, receiver, sock_scene3d):
     # Get all data from scene3d.
     sock_scene3d.send(b'get_scene')
-    data_from_scene3d = sock_scene3d.recv(buffer_size).decode()
-    data_from_scene3d = json.loads(data_from_scene3d)
+    message_from_scene3d = sock_scene3d.recv(buffer_size).decode()
+    data_from_scene3d = json.loads(message_from_scene3d)
 
     # Remove all blank chars and last parameter.
     coords_to_check = sent_command.strip()[1:-1].strip()
-    if receiver in data_from_scene3d:
+    if rd[receiver] in data_from_scene3d:
         # Remove all blank chars.
         coords_for_check = data_from_scene3d[rd[receiver]].strip()
         if coords_to_check == coords_for_check:
             return True
         
-        for c, r in set(zip(command.split(' '), result.split(' '))):
+        for c, r in set(zip(coords_to_check.split(' '),
+                            coords_for_check.split(' '))):
             if abs(float(c) - float(r)) > EPS:
                 return False
 
