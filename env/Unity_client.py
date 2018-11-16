@@ -6,7 +6,7 @@ import time
 buffer_size = 2048
 
 
-def _create_task(flag='0', task_name='moving', parallel=False,
+def _create_task(flag='0', task_name='moving', parallel='false',
                  robot_names=('f',), tasks_time=(3,), energy=(3,),
                  commands=('m 0 0 0 0 0 0',)):
     data_to_send = {
@@ -32,7 +32,7 @@ def create_simple_unparallel_task(flag='0', task_name='moving',
                                   energy=(3,), commands=('m 0 0 0 0 0 0',)):
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
-                                parallel=False,
+                                parallel='false',
                                 robot_names=robot_names,
                                 tasks_time=tasks_time,
                                 energy=energy,
@@ -45,7 +45,7 @@ def create_simple_parallel_task(flag='0', task_name='moving_together',
                                 energy=(3,), commands=('m 10 0 0 0 0 0',)):
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
-                                parallel=True,
+                                parallel='true',
                                 robot_names=robot_names[:-1],
                                 tasks_time=tasks_time[:-1],
                                 energy=energy[:-1],
@@ -65,7 +65,7 @@ def create_complex_unparallel_task(flag='0', task_name='moving_difficult',
     empty_list = [''] * len(commands)
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
-                                parallel=False,
+                                parallel='false',
                                 robot_names=empty_list,
                                 tasks_time=empty_list,
                                 energy=empty_list,
@@ -78,7 +78,7 @@ def create_complex_parallel_task(flag='0', task_name='moving_difficult2',
     empty_list = [''] * len(commands)
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
-                                parallel=True,
+                                parallel='false',
                                 robot_names=empty_list,
                                 tasks_time=empty_list,
                                 energy=empty_list,
@@ -112,7 +112,7 @@ def create_command_from_input():
 
     data_to_send = _create_task(flag=flag,
                                 task_name=task_name,
-                                parallel=True,
+                                parallel='true',
                                 robot_names=robot_names,
                                 tasks_time=tasks_time,
                                 energy=energy,
