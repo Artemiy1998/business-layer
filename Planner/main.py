@@ -262,11 +262,18 @@ def process_complex_task(task, task_loader):
         print('Task name:', task.get('command'))
 
         # Load tasks from loader and process it as simple task.
-        if len(task_.get('command').split(' ')) == 1 and task_.get('command') != 'f':
+        if len(task_.get('command').split(' ')) == 1 and \
+           task_.get('command') != 'f':
+            print('a')
             simple_task = task_loader.load_task(task_.get('command'))
         else:
             simple_task = task_
-        if process_simple_task(simple_task, task_loader, save_task=bool(task.get('name'))):
+        if process_simple_task(simple_task, task_loader,
+                               save_task=bool(task.get('name'))):
+            print('b')
+            simple_task = task
+        if not process_simple_task(simple_task, task_loader,
+                                   save_task=bool(task.get('name'))):
             break
 
 

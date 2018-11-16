@@ -1,12 +1,29 @@
 import socket
-from http.server import BaseHTTPRequestHandler
 import json
+import os
+import configparser
+
 import xmltodict
+
+from http.server import BaseHTTPRequestHandler
+
+
+# config
+config_file = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)),
+    'configBL.ini'
+)
+config = configparser.ConfigParser()
+config.read(config_file)
+
+host = config['HOSTS']['Main_host']
+port_cl_ad = int(config['PORTS']['Port_cl_adapter'])
+# end config
 
 
 class MyRequestHandler(BaseHTTPRequestHandler):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(('192.168.1.42', 9090))
+    sock.connect((host, port_cl_ad))
 
     def _set_response(self):
         self.send_response(200)
