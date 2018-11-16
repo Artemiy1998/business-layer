@@ -190,71 +190,26 @@ def process_simple_task(task, task_loader, save_task=True):
     if save_task:
         task_loader.save_task(task)
 
-    result_status = True
+    time_1 = int(task.get('time'))
 
-    i = 0
-    command_number = len(task['Scenario'])
-    while i < command_number:
-        time_1 = int(task['Scenario'][i].get('time'))
+    name_1 = task.get('name')
+    command_1 = task.get('command')
 
-        name_1 = task['Scenario'][i].get('name')
-        command_1 = task['Scenario'][i].get('command')
+    # Find parameter in command, try to replace it to data from 3d scene.
+    parameter_name_1 = find_parameter(command_1)
+    if parameter_name_1 is not None:
+        command_1 = get_data_and_replace_parameter(
+            command_1, parameter_name_1, sock_3d_scene
+        )
 
-        # Find parameter in command, try to replace it to data from 3d scene.
-        parameter_name_1 = find_parameter(command_1)
-        if parameter_name_1 is not None:
-            command_1 = get_data_and_replace_parameter(
-                command_1, parameter_name_1, sock_3d_scene
-            )
+    sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
+    print('Send to', name_1, 'command:', command_1)
+    time.sleep(time_1)
 
-        # Imitation of parallel work. Need to improve this piece of code.
-        if task['Scenario'][i].get('parallel') == "true" and \
-           i + 1 < command_number:
-            sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
-            print('Send to', name_1, 'command:', command_1)
+    if not check_execution_with_delay(command_1, name_1, sock_3d_scene):
+        return False
 
-            name_2 = task['Scenario'][i + 1].get('name')
-            command_2 = task['Scenario'][i + 1].get('command')
-
-            parameter_name_2 = find_parameter(command_2)
-            if parameter_name_2 is not None:
-                command_2 = get_data_and_replace_parameter(
-                    command_2, parameter_name_2, sock_3d_scene
-                )
-
-            sock_rob_ad.send(data_convert_json_to_str_byte(name_2, command_2))
-            print('Send to', name_2, 'command:', command_2)
-
-            time_2 = int(task['Scenario'][i + 1].get('time'))
-            time.sleep(max(time_1, time_2))
-
-            check_1 = check_command_execution(command_1, name_1, sock_3d_scene)
-            check_2 = check_command_execution(command_2, name_2, sock_3d_scene)
-
-            if not check_1:
-                print(f"Error: {rd[name_1]} in {command_1}")
-                result_status = False
-                break
-            if not check_2:
-                print(f"Error: {rd[name_2]} in {command_2}")
-                result_status = False
-                break
-
-            i += 1
-
-        else:
-            sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
-            print('Send to', name_1, 'command:', command_1)
-            time.sleep(time_1)
-
-            if not check_execution_with_delay(command_1, name_1,
-                                              sock_3d_scene):
-                result_status = False
-                break
-
-        i += 1
-
-    return result_status
+    return True
 
 
 def process_complex_task(task, task_loader):

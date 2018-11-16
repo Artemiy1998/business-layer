@@ -268,6 +268,17 @@ def send_exit_command(sock):
     send_data(data_to_send, sock)
 
 
+def send_test_command(sock):
+    data_to_send = {
+        'Scenario': [{'command': 'm -900 -1200', 'energy': '2', 'name': 't',
+                      'parallel': 'false', 'time': '10'},
+                     {'command': 'm -900 -1200', 'energy': '2', 'name': 't',
+                      'parallel': 'false', 'time': '10'}], 'flag': '0',
+         'name': ''
+    }
+    send_data(data_to_send, sock)
+
+
 cl_adapter_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port_cl_adapter = 9090
 cl_adapter_sock.connect(('192.168.1.121', port_cl_adapter))
@@ -278,12 +289,13 @@ print('Options:\n'
       '3: send "get_scene" request to 3d Scene\n'
       '4: send simple task with parameter\n'
       '5: send complex task with parameter\n'
-      '6: send simple task with parameter and offset\n\n'
+      '6: send simple task with parameter and offset\n'
+      '7: send test command\n\n'
       '0: exit')
 
 delay = 3
 while True:
-    inp = input('Enter some key [1-6] to continue or 0 to exit: ')
+    inp = input('Enter some key [1-7] to continue or 0 to exit: ')
     if inp == '0':
         send_exit_command(cl_adapter_sock)
         break
@@ -305,6 +317,8 @@ while True:
         send_parallel_complex_task_with_parameter(cl_adapter_sock)
     elif inp == '6':
         send_unparallel_simple_task_with_parameter_and_offset(cl_adapter_sock)
+    elif inp == '7':
+        send_test_command(cl_adapter_sock)
     else:
         print('Not found command. Please, try again.')
 
