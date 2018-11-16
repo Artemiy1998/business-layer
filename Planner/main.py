@@ -188,6 +188,8 @@ def process_simple_task(task, task_loader, save_task=True):
     if save_task:
         task_loader.save_task(task)
 
+    result_status = True
+
     i = 0
     command_number = len(task['Scenario'])
     while i < command_number:
@@ -229,9 +231,11 @@ def process_simple_task(task, task_loader, save_task=True):
 
             if not check_1:
                 print(f"Error: {rd[name_1]} in {command_1}")
+                result_status = False
                 break
             if not check_2:
                 print(f"Error: {rd[name_2]} in {command_2}")
+                result_status = False
                 break
 
             i += 1
@@ -243,9 +247,12 @@ def process_simple_task(task, task_loader, save_task=True):
 
             if not check_execution_with_delay(command_1, name_1,
                                               sock_3d_scene):
+                result_status = False
                 break
 
         i += 1
+
+    return result_status
 
 
 def process_complex_task(task, task_loader):
@@ -254,7 +261,8 @@ def process_complex_task(task, task_loader):
 
         # Load tasks from loader and process it as simple task.
         simple_task = task_loader.load_task(task.get('command'))
-        process_simple_task(simple_task, task_loader, save_task=False)
+        if process_simple_task(simple_task, task_loader, save_task=False):
+            break
 
 
 # Read all data from socket buffer.
