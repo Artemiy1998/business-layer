@@ -130,10 +130,12 @@ def get_data_from_scene_and_compare(sent_command, receiver, sock_scene3d):
         print(f"coords for check {coords_for_check}")
         if coords_to_check == coords_for_check:
             return True
-
+        
         for c, r in set(zip(coords_to_check.split(' '),
                             coords_for_check.split(' '))):
             if abs(abs(float(c)) - abs(float(r))) > EPS:
+                print(float(c))
+                print(float(r))
                 return False
         return True
 
@@ -256,12 +258,15 @@ def process_simple_task(task, task_loader, save_task=True):
 
 
 def process_complex_task(task, task_loader):
-    for task in task['Scenario']:
+    for task_ in task['Scenario']:
         print('Task name:', task.get('command'))
 
         # Load tasks from loader and process it as simple task.
-        simple_task = task_loader.load_task(task.get('command'))
-        if process_simple_task(simple_task, task_loader, save_task=False):
+        if len(task_.get('command').split(' ')) == 1 and task_.get('command') != 'f':
+            simple_task = task_loader.load_task(task_.get('command'))
+        else:
+            simple_task = task_
+        if process_simple_task(simple_task, task_loader, save_task=bool(task.get('name'))):
             break
 
 
@@ -315,11 +320,7 @@ while True:
                 try:
                     print(message)
                     data = json.loads(message)
-                    is_simple = bool(data['Scenario'][0].get('name'))
-                    if is_simple:
-                        process_simple_task(data, taskloader)
-                    else:
-                        process_complex_task(data, taskloader)
+                    process_complex_task(data, taskloader)
                 except ConnectionAbortedError:
                     # logging.error('RCA aborted connection')
                     pass

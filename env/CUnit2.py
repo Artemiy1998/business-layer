@@ -6,7 +6,7 @@ import sys
 buffer_size = 2048
 
 sock_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_client.connect(('192.168.1.121', 9099))
+sock_client.connect(('192.168.0.42', 9099))
 sock_client.send(b't')
 
 # Telega imitator.
