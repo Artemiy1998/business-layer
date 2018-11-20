@@ -270,7 +270,7 @@ def send_exit_command(sock):
 
 cl_adapter_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 port_cl_adapter = 9090
-cl_adapter_sock.connect(('192.168.0.42', port_cl_adapter))
+cl_adapter_sock.connect(('192.168.1.42', port_cl_adapter))
 
 print('Options:\n'
       '1: send simple tasks\n'
@@ -305,6 +305,14 @@ while True:
         send_parallel_complex_task_with_parameter(cl_adapter_sock)
     elif inp == '6':
         send_unparallel_simple_task_with_parameter_and_offset(cl_adapter_sock)
+    elif inp =='c':
+        task_name = ''
+        flag = '0'
+        name = 't'
+        time_ = input("time: ")
+        command = input("command: ")
+        data = _create_task(flag, task_name, robot_names=name, tasks_time=time_, commands=(command, ))
+        send_data(data, cl_adapter_sock)
     else:
         print('Not found command. Please, try again.')
 
