@@ -61,7 +61,7 @@ sock_serv.listen(1)
 SPECIAL_SYMBOL = '$'
 CONCAT_SYMBOL = '+'
 SEPARATED_SYMBOL = '!'
-EPS = 10
+EPS = 2000
 
 
 def data_convert_json_to_str_byte(name, cmd):
@@ -86,6 +86,8 @@ def find_parameter(command, symbol=SPECIAL_SYMBOL):
 def get_data_and_replace_parameter(command, parameter, sock_scene3d):
     sock_scene3d.send(f'get {parameter}'.encode())
     data_from_3d_scene = sock_scene3d.recv(buffer_size).decode()
+    if data_from_3d_scene == "":
+        return None
     new_command = command.replace(parameter, data_from_3d_scene)
     return add_offset(new_command, data_from_3d_scene)
 
@@ -203,9 +205,12 @@ def process_simple_task(task, task_loader, save_task=True):
         # Find parameter in command, try to replace it to data from 3d scene.
         parameter_name_1 = find_parameter(command_1)
         if parameter_name_1 is not None:
-            command_1 = get_data_and_replace_parameter(
-                command_1, parameter_name_1, sock_3d_scene
-            )
+            command_1 = get_data_and_replace_parameter(command_1, parameter_name_1, sock_3d_scene)
+            if command_1 is '':
+                result_status = False
+                break
+
+
 
         # Imitation of parallel work. Need to improve this piece of code.
         if task['Scenario'][i].get('parallel') == "true" and \
