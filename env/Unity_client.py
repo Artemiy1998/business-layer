@@ -268,7 +268,7 @@ def send_exit_command(sock):
     send_data(data_to_send, sock)
 
 
-def send_test_command(sock):
+def send_test_command_to_telega(sock):
     data_to_send = {
         'Scenario': [{'command': 'm -900 -1200', 'energy': '2', 'name': 't',
                       'parallel': 'false', 'time': '10'},
@@ -318,7 +318,16 @@ while True:
     elif inp == '6':
         send_unparallel_simple_task_with_parameter_and_offset(cl_adapter_sock)
     elif inp == '7':
-        send_test_command(cl_adapter_sock)
+        send_test_command_to_telega(cl_adapter_sock)
+    elif inp == 'c':
+        task_name = ''
+        flag = '0'
+        name = 't'
+        time_ = input("time: ")
+        command = input("command: ")
+        data = _create_task(flag, task_name, robot_names=name, tasks_time=time,
+                            commands=(command, ))
+        send_data(data, cl_adapter_sock)
     else:
         print('Not found command. Please, try again.')
 

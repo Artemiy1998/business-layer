@@ -61,7 +61,7 @@ sock_serv.listen(1)
 SPECIAL_SYMBOL = '$'
 CONCAT_SYMBOL = '+'
 SEPARATED_SYMBOL = '!'
-EPS = 10
+EPS = 2000
 
 
 def data_convert_json_to_str_byte(name, cmd):
@@ -86,6 +86,8 @@ def find_parameter(command, symbol=SPECIAL_SYMBOL):
 def get_data_and_replace_parameter(command, parameter, sock_scene3d):
     sock_scene3d.send(f'get {parameter}'.encode())
     data_from_3d_scene = sock_scene3d.recv(buffer_size).decode()
+    if not data_from_3d_scene:
+        return None
     new_command = command.replace(parameter, data_from_3d_scene)
     return add_offset(new_command, data_from_3d_scene)
 
@@ -201,6 +203,8 @@ def process_simple_task(task, task_loader, save_task=True):
         command_1 = get_data_and_replace_parameter(
             command_1, parameter_name_1, sock_3d_scene
         )
+        if not command_1:
+            return False
 
     sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
     print('Send to', name_1, 'command:', command_1)
@@ -219,14 +223,9 @@ def process_complex_task(task, task_loader):
         # Load tasks from loader and process it as simple task.
         if len(task_.get('command').split(' ')) == 1 and \
            task_.get('command') != 'f':
-            print('a')
             simple_task = task_loader.load_task(task_.get('command'))
         else:
             simple_task = task_
-        if process_simple_task(simple_task, task_loader,
-                               save_task=bool(task.get('name'))):
-            print('b')
-            simple_task = task
         if not process_simple_task(simple_task, task_loader,
                                    save_task=bool(task.get('name'))):
             break
