@@ -253,9 +253,15 @@ class Planner:
                 simple_task = task_loader.load_task(
                     scenario_task.get('command')
                 )
+                if not self.process_simple_task(
+                       simple_task, task_loader,
+                       save_task=bool(scenario_task.get('name'))
+                   ):
+                    break
+
             else:
-                simple_task = scenario_task
-            if not self.process_simple_task(
-                    simple_task, task_loader,
-                    save_task=bool(scenario_task.get('name'))):
+                self.process_simple_task(
+                    task, task_loader,
+                    save_task=bool(task.get('name'))
+                )
                 break
