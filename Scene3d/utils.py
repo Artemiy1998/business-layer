@@ -26,7 +26,7 @@ class Scene3Ddata:
 
     def get_by_parameter(self, parameter):
         if parameter not in self.data:
-            return ''
+            return 'None'
         return self.data[parameter]
 
 
