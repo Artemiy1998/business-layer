@@ -8,7 +8,7 @@ class Planner:
     SPECIAL_SYMBOL = '$'
     CONCAT_SYMBOL = '+'
     SEPARATED_SYMBOL = '!'
-    EPS = 2000
+    EPS = 20
 
     def __init__(self, sock_rob_ad, sock_scene3d, robo_dict, buffer_size):
         self.ROBO_DICT = robo_dict
@@ -38,7 +38,7 @@ class Planner:
         return object_name in data_from_scene3d
 
     def try_get_data_from_sensors(self, receiver, object_name, checks_number=3,
-                                  time_delay=3):
+                                  time_delay=5):
         print('Try to found', object_name, 'in', receiver)
 
         for _ in range(checks_number):
@@ -62,21 +62,21 @@ class Planner:
             return command[parameter_begin:parameter_end + 1]
         return None
 
-    def get_parameter_from_scene3d(parameter):
+    def get_parameter_from_scene3d(self, parameter):
         self.sock_scene3d.send(f'get {parameter}'.encode())
         data_from_scene_3d = self.sock_scene3d.recv(self.BUFFER_SIZE).decode()
         return data_from_scene_3d
 
     def get_data_and_replace_parameter(self, command, receiver, parameter):
         # Try to get object from scene 3d at first time.
-        data_from_scene_3d = get_parameter_from_scene3d(parameter)
+        data_from_scene_3d = self.get_parameter_from_scene3d(parameter)
 
         if data_from_scene_3d == 'None':
             # Callng sensors several times.
             if not self.try_get_data_from_sensors(receiver, parameter):
                 return None
-            # After callng sensors try to get object again. 
-            data_from_scene_3d = get_parameter_from_scene3d(parameter)
+            # After callng sensors try to get object again.
+            data_from_scene_3d = self.get_parameter_from_scene3d(parameter)
             if data_from_scene_3d == 'None':
                 raise ValueError(f'Did not find parameter in scene 3d: '
                                  f'{parameter}.')
