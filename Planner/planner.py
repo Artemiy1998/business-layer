@@ -168,40 +168,94 @@ class Planner:
         if save_task:
             task_loader.save_task(task)
 
-        time_1 = int(task.get('time'))
+        result_status = True
 
-        receiver_1 = task.get('name')
-        command_1 = task.get('command')
+        i = 0
+        command_number = len(task['Scenario'])
+        while i < command_number:
+            time_1 = int(task['Scenario'][i].get('time'))
 
-        # Find parameter in command, try to replace it to data from 3d scene.
-        parameter_name_1 = self.find_parameter(command_1)
-        if parameter_name_1 is not None:
-            command_1 = self.get_data_and_replace_parameter(
-                command_1, receiver_1, parameter_name_1
-            )
-            if not command_1:
-                return False
+            receiver_1 = task['Scenario'][i].get('name')
+            command_1 = task['Scenario'][i].get('command')
 
-        self.sock_rob_ad.send(self.data_convert_json_to_str_byte(command_1,
-                                                                 receiver_1))
-        print('Send to', receiver_1, 'command:', command_1)
-        time.sleep(time_1)
+            # Find parameter in command, try to replace it to data from
+            # scene3d.
+            parameter_name_1 = self.find_parameter(command_1)
+            if parameter_name_1 is not None:
+                command_1 = self.get_data_and_replace_parameter(
+                    command_1, receiver_1, parameter_name_1
+                )
+                if not command_1:
+                    result_status = False
+                    break
 
-        if not self.check_execution_with_delay(command_1, receiver_1):
-            return False
+            # Imitation of parallel work. Need to improve this piece of code.
+            if task['Scenario'][i].get('parallel') == "true" and \
+                    i + 1 < command_number:
+                self.sock_rob_ad.send(
+                    self.data_convert_json_to_str_byte(command_1, receiver_1)
+                )
+                print('Send to', receiver_1, 'command:', command_1)
 
-        return True
+                receiver_2 = task['Scenario'][i + 1].get('name')
+                command_2 = task['Scenario'][i + 1].get('command')
+
+                parameter_name_2 = self.find_parameter(command_2)
+                if parameter_name_2 is not None:
+                    command_2 = self.get_data_and_replace_parameter(
+                        command_2, receiver_1, parameter_name_2
+                    )
+
+                self.sock_rob_ad.send(
+                    self.data_convert_json_to_str_byte(command_2, receiver_2)
+                )
+                print('Send to', receiver_2, 'command:', command_2)
+
+                time_2 = int(task['Scenario'][i + 1].get('time'))
+                time.sleep(max(time_1, time_2))
+
+                check_1 = self.check_command_execution(command_1, receiver_1)
+                check_2 = self.check_command_execution(command_2, receiver_2)
+
+                if not check_1:
+                    print(f"Error: {self.RD[receiver_1]} in {command_1}")
+                    result_status = False
+                    break
+                if not check_2:
+                    print(f"Error: {self.RD[receiver_2]} in {command_2}")
+                    result_status = False
+                    break
+
+                i += 1
+
+            else:
+                self.sock_rob_ad.send(
+                    self.data_convert_json_to_str_byte(command_1, receiver_1)
+                )
+                print('Send to', receiver_1, 'command:', command_1)
+                time.sleep(time_1)
+
+                if not self.check_execution_with_delay(command_1, receiver_1):
+                    result_status = False
+                    break
+
+            i += 1
+
+        return result_status
 
     def process_complex_task(self, task, task_loader):
-        for task_ in task['Scenario']:
-            print('Task name:', task.get('command'))
+        for scenario_task in task['Scenario']:
+            print('Task name:', scenario_task.get('command'))
 
             # Load tasks from loader and process it as simple task.
-            if len(task_.get('command').split(' ')) == 1 and \
-                    task_.get('command') != 'f':
-                simple_task = task_loader.load_task(task_.get('command'))
+            if len(scenario_task.get('command').split(' ')) == 1 and \
+                    scenario_task.get('command') != 'f':
+                simple_task = task_loader.load_task(
+                    scenario_task.get('command')
+                )
             else:
-                simple_task = task_
-            if not self.process_simple_task(simple_task, task_loader,
-                                            save_task=bool(task.get('name'))):
+                simple_task = scenario_task
+            if not self.process_simple_task(
+                    simple_task, task_loader,
+                    save_task=bool(scenario_task.get('name'))):
                 break
