@@ -213,7 +213,7 @@
       {
         "parallel": false,
         "name": "f",
-        "time": 0,
+        "time": 10,
         "energy": 0,
         "command": "m $object0$ + 0 0 0 0 0 0 ! 5"
       },
@@ -236,7 +236,7 @@
         "name": "f",
         "time": 8,
         "energy": 0,
-        "command": "m -401 -528 400 940 180 0 177 0"
+        "command": "m -401 -528 400 180 0 177 0"
       },
       {
         "parallel": false,
