@@ -3,7 +3,7 @@ import json
 import time
 
 
-buffer_size = 2048
+BUFFER_SIZE = 2048
 
 
 def _create_task(flag='0', task_name='moving', parallel=False,
@@ -201,7 +201,7 @@ def send_get_scene_request(sock):
     }
     data_json = json.dumps(data_to_send)
     sock.send(data_json.encode())
-    data = sock.recv(buffer_size).decode()
+    data = sock.recv(BUFFER_SIZE).decode()
     print('Response from scene3d:', data)
 
 
@@ -212,7 +212,7 @@ def send_unparallel_simple_task_with_parameter(sock):
         robot_names=['f', 't'],
         tasks_time=[2, 2],
         energy=[3, 3],
-        commands=['m 4 1 0 1 0 0 0', 'm data 0']
+        commands=['m 4 1 0 1 0 0 0', 'm $fanuc$ 0']
     )
     send_data(data_to_send, sock)
 
@@ -224,7 +224,7 @@ def send_parallel_simple_task_with_parameter(sock):
         robot_names=['f', 'f'],
         tasks_time=[1, 2],
         energy=[3, 3],
-        commands=['m 5 1 1 1 0 0 0', 'm $data$ 0']
+        commands=['m 5 1 1 1 0 0 0', 'm $fanuc$ 0']
     )
     send_data(data_to_send, sock)
 
@@ -254,7 +254,7 @@ def send_unparallel_simple_task_with_parameter_and_offset(sock):
         robot_names=['f', 'f'],
         tasks_time=[1, 2],
         energy=[3, 3],
-        commands=['m 6 1 1 1 0 0 0', 'm data + 10 20 30 40 50 60 ! 0']
+        commands=['m 6 1 1 1 0 0 0', 'm $fanuc$ + 10 20 30 40 50 60 ! 0']
     )
     send_data(data_to_send, sock)
 
@@ -270,18 +270,21 @@ def send_exit_command(sock):
 
 def send_test_command_to_telega(sock):
     data_to_send = {
-        'Scenario': [{'command': 'm -900 -1200', 'energy': '2', 'name': 't',
-                      'parallel': 'false', 'time': '10'},
-                     {'command': 'm -900 -1200', 'energy': '2', 'name': 't',
-                      'parallel': 'false', 'time': '10'}], 'flag': '0',
-         'name': ''
+        'Scenario': [
+            {'command': 'm -900 -1200', 'energy': '2', 'name': 't',
+             'parallel': 'false', 'time': '10'},
+            {'command': 'm -900 -1200', 'energy': '2', 'name': 't',
+             'parallel': 'false', 'time': '10'}
+        ],
+        'flag': '0',
+        'name': ''
     }
     send_data(data_to_send, sock)
 
 
-cl_adapter_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-port_cl_adapter = 9090
-cl_adapter_sock.connect(('192.168.1.121', port_cl_adapter))
+CL_ADAPTER_SOCK = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+PORT_CL_ADAPTER = 9090
+CL_ADAPTER_SOCK.connect(('192.168.1.121', PORT_CL_ADAPTER))
 
 print('Options:\n'
       '1: send simple tasks\n'
@@ -293,42 +296,36 @@ print('Options:\n'
       '7: send test command\n\n'
       '0: exit')
 
-delay = 3
+DELAY = 3
 while True:
     inp = input('Enter some key [1-7] to continue or 0 to exit: ')
     if inp == '0':
-        send_exit_command(cl_adapter_sock)
+        send_exit_command(CL_ADAPTER_SOCK)
         break
     elif inp == '1':
-        send_unparallel_simple_tasks(cl_adapter_sock)
-        send_parallel_simple_tasks(cl_adapter_sock)
-        time.sleep(delay)
-        send_parallel_simple_tasks_with_odd_command_number(cl_adapter_sock)
+        send_unparallel_simple_tasks(CL_ADAPTER_SOCK)
+        send_parallel_simple_tasks(CL_ADAPTER_SOCK)
+        time.sleep(DELAY)
+        send_parallel_simple_tasks_with_odd_command_number(CL_ADAPTER_SOCK)
     elif inp == '2':
-        send_unparallel_complex_tasks(cl_adapter_sock)
-        send_parallel_complex_tasks(cl_adapter_sock)
+        send_unparallel_complex_tasks(CL_ADAPTER_SOCK)
+        send_parallel_complex_tasks(CL_ADAPTER_SOCK)
     elif inp == '3':
-        send_get_scene_request(cl_adapter_sock)
+        send_get_scene_request(CL_ADAPTER_SOCK)
     elif inp == '4':
-        send_unparallel_simple_task_with_parameter(cl_adapter_sock)
-        send_parallel_simple_task_with_parameter(cl_adapter_sock)
+        send_unparallel_simple_task_with_parameter(CL_ADAPTER_SOCK)
+        send_parallel_simple_task_with_parameter(CL_ADAPTER_SOCK)
     elif inp == '5':
-        send_unparallel_complex_task_with_parameter(cl_adapter_sock)
-        send_parallel_complex_task_with_parameter(cl_adapter_sock)
+        send_unparallel_complex_task_with_parameter(CL_ADAPTER_SOCK)
+        send_parallel_complex_task_with_parameter(CL_ADAPTER_SOCK)
     elif inp == '6':
-        send_unparallel_simple_task_with_parameter_and_offset(cl_adapter_sock)
+        send_unparallel_simple_task_with_parameter_and_offset(CL_ADAPTER_SOCK)
     elif inp == '7':
-        send_test_command_to_telega(cl_adapter_sock)
+        send_test_command_to_telega(CL_ADAPTER_SOCK)
     elif inp == 'c':
-        task_name = ''
-        flag = '0'
-        name = 't'
-        time_ = input("time: ")
-        command = input("command: ")
-        data = _create_task(flag, task_name, robot_names=name, tasks_time=time,
-                            commands=(command, ))
-        send_data(data, cl_adapter_sock)
+        data = create_command_from_input()
+        send_data(data, CL_ADAPTER_SOCK)
     else:
         print('Not found command. Please, try again.')
 
-    time.sleep(delay)
+    time.sleep(DELAY)

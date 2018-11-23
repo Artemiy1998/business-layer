@@ -7,6 +7,7 @@ import json
 import time
 
 from task_loader import TaskLoader
+from planner import Planner
 
 
 # TODO: при отключении клиент адаптера на CUnit, которому была адресована
@@ -21,214 +22,41 @@ logging.basicConfig(
 )
 
 # config
-config_file = os.path.join(
+CONFIG_FILE = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     'configBL.ini'
 )
-config = configparser.ConfigParser()
-config.read(config_file)
+CONFIG = configparser.ConfigParser()
+CONFIG.read(CONFIG_FILE)
 
-host = config['HOSTS']['Main_host']
-port_cl_ad = int(config['PORTS']['Port_cl_adapter'])
-port_planner = int(config['PORTS']['Port_planner'])
-port_3d_scene = int(config['PORTS']['Port_3d_scene'])
-port_rob_ad = int(config['PORTS']['Port_rca'])
-buffer_size = int(config['PARAMS']['Buffersize'])
+HOST = CONFIG['HOSTS']['Main_host']
+PORT_CL_AD = int(CONFIG['PORTS']['Port_cl_adapter'])
+PORT_PLANNER = int(CONFIG['PORTS']['Port_planner'])
+PORT_3D_SCENE = int(CONFIG['PORTS']['Port_3d_scene'])
+PORT_ROB_AD = int(CONFIG['PORTS']['Port_rca'])
+BUFFER_SIZE = int(CONFIG['PARAMS']['Buffersize'])
 
-who = 'p'
-robo_dict = ['f', 't']
-rd = {'f': 'fanuc_world', 't': 'telega'}
+WHO = 'p'
+ROBO_DICT = ['f', 't']
 # end config
 
-sock_rob_ad = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+SOCK_ROB_AD = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
-    sock_rob_ad.connect((host, port_rob_ad))
-    sock_rob_ad.send(who.encode())
+    SOCK_ROB_AD.connect((HOST, PORT_ROB_AD))
+    SOCK_ROB_AD.send(WHO.encode())
 except ConnectionRefusedError:
     logging.error('RCA refused connection')
 
-sock_3d_scene = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+SOCK_3D_SCENE = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 try:
-    sock_3d_scene.connect((host, port_3d_scene))
-    sock_3d_scene.send(b'planner')
+    SOCK_3D_SCENE.connect((HOST, PORT_3D_SCENE))
+    SOCK_3D_SCENE.send(b'planner')
 except ConnectionRefusedError:
     logging.error('Scene3d refused connection')
 
-sock_serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_serv.bind((host, port_planner))
-sock_serv.listen(1)
-
-SPECIAL_SYMBOL = '$'
-CONCAT_SYMBOL = '+'
-SEPARATED_SYMBOL = '!'
-EPS = 2000
-
-
-def data_convert_json_to_str_byte(name, cmd):
-    if cmd == 'sensors':
-        cmd = 'f'
-    data_str_byte = f'{name}: {cmd}|'.encode()
-    print(data_str_byte)
-    return data_str_byte
-
-
-def find_parameter(command, symbol=SPECIAL_SYMBOL):
-    parameter_begin = command.find(symbol)
-    if parameter_begin != -1:
-        parameter_end = command.find(symbol, parameter_begin + 1)
-        if parameter_end == -1:
-            raise ValueError(f'Did not find end of parameter in command: '
-                             f'{command}.')
-        return command[parameter_begin:parameter_end + 1]
-    return None
-
-
-def get_data_and_replace_parameter(command, parameter, sock_scene3d):
-    sock_scene3d.send(f'get {parameter}'.encode())
-    data_from_3d_scene = sock_scene3d.recv(buffer_size).decode()
-    if not data_from_3d_scene:
-        return None
-    new_command = command.replace(parameter, data_from_3d_scene)
-    return add_offset(new_command, data_from_3d_scene)
-
-
-def add_offset(command, data_from_3d_scene, concat_symbol=CONCAT_SYMBOL,
-               separated_symbol=SEPARATED_SYMBOL, command_offset=None):
-    # Find symbol for command with offset.
-    con_pos = command.find(concat_symbol)
-    if con_pos == -1:
-        return command
-
-    # Find command coordinate.
-    sep_pos = command.find(separated_symbol)
-    if sep_pos == -1:
-        raise ValueError(f'Did not found control symbol at the end of the'
-                         f'command: {command}')
-
-    # Skip space symbols: con_pos + 2 and sep_pos - 1.
-    data_to_add = command[con_pos + 2:sep_pos - 1]
-    coords = [str(float(x) + float(y)) for x, y in zip(
-        data_from_3d_scene.split(' '), data_to_add.split(' ')
-    )]
-    if command_offset is None:
-        # Get command literal (because it place in the beginning)
-        # with space symbol. Add command coordinate at the end.
-        return command[:2] + ' '.join(coords) + command[sep_pos + 1:]
-    raise NotImplementedError('Need to add processing for non-standard offset')
-
-
-def get_data_from_scene_and_compare(sent_command, receiver, sock_scene3d):
-    # Get all data from scene3d.
-    sock_scene3d.send(b'get_scene')
-    message_from_scene3d = sock_scene3d.recv(buffer_size).decode()
-    data_from_scene3d = json.loads(message_from_scene3d)
-
-    # Remove all blank chars and last parameter.
-    coords_to_check = sent_command.strip()[1:-1].strip()
-    print(f"coords to check {coords_to_check}")
-    if rd[receiver] in data_from_scene3d:
-        # Remove all blank chars.
-        coords_for_check = data_from_scene3d[rd[receiver]].strip()
-        print(f"coords for check {coords_for_check}")
-        if coords_to_check == coords_for_check:
-            return True
-        
-        for c, r in set(zip(coords_to_check.split(' '),
-                            coords_for_check.split(' '))):
-            if abs(abs(float(c)) - abs(float(r))) > EPS:
-                print(float(c))
-                print(float(r))
-                return False
-        return True
-
-    return None
-
-
-def check_command_execution(sent_command, receiver, sock_scene3d):
-    if 'm' not in sent_command:
-        return True
-
-    result = get_data_from_scene_and_compare(sent_command, receiver,
-                                             sock_scene3d)
-    if result is not None:
-        if not result:
-            sock_scene3d.send(b'set "status": "error_command"')
-            print("Status: error_command")
-            logging.info("Status: error_command")
-            return False
-
-        sock_scene3d.send(b'set "status": "ok"')
-        print("Status: ok")
-        logging.info("Status: ok")
-        return True
-
-    sock_scene3d.send(b'set "status": "error_object"')
-    print("Status: error_object")
-    logging.info("Status: error_object")
-    return False
-
-
-def check_execution_with_delay(sent_command, receiver, sock_scene3d,
-                               checks_number=3, time_delay=1):
-    # Check command execution with some delays.
-    if 'm' in sent_command:
-        is_executed = False
-        for j in range(checks_number):
-            if check_command_execution(sent_command, receiver,
-                                       sock_scene3d):
-                is_executed = True
-                break
-
-            time.sleep(time_delay * j + time_delay)
-
-        if not is_executed:
-            print(f"Error: {rd[receiver]} in {sent_command}")
-            return False
-
-    return True
-
-
-def process_simple_task(task, task_loader, save_task=True):
-    if save_task:
-        task_loader.save_task(task)
-
-    time_1 = int(task.get('time'))
-
-    name_1 = task.get('name')
-    command_1 = task.get('command')
-
-    # Find parameter in command, try to replace it to data from 3d scene.
-    parameter_name_1 = find_parameter(command_1)
-    if parameter_name_1 is not None:
-        command_1 = get_data_and_replace_parameter(
-            command_1, parameter_name_1, sock_3d_scene
-        )
-        if not command_1:
-            return False
-
-    sock_rob_ad.send(data_convert_json_to_str_byte(name_1, command_1))
-    print('Send to', name_1, 'command:', command_1)
-    time.sleep(time_1)
-
-    if not check_execution_with_delay(command_1, name_1, sock_3d_scene):
-        return False
-
-    return True
-
-
-def process_complex_task(task, task_loader):
-    for task_ in task['Scenario']:
-        print('Task name:', task.get('command'))
-
-        # Load tasks from loader and process it as simple task.
-        if len(task_.get('command').split(' ')) == 1 and \
-           task_.get('command') != 'f':
-            simple_task = task_loader.load_task(task_.get('command'))
-        else:
-            simple_task = task_
-        if not process_simple_task(simple_task, task_loader,
-                                   save_task=bool(task.get('name'))):
-            break
+SOCK_SERV = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+SOCK_SERV.bind((HOST, PORT_PLANNER))
+SOCK_SERV.listen(1)
 
 
 # Read all data from socket buffer.
@@ -236,7 +64,7 @@ def receive(sock):
     total_data = b''
     try:
         while True:
-            recv_data = sock.recv(buffer_size)
+            recv_data = sock.recv(BUFFER_SIZE)
             if recv_data:
                 total_data += recv_data
             else:
@@ -246,10 +74,11 @@ def receive(sock):
     return total_data.decode()
 
 
+planner = Planner(SOCK_ROB_AD, SOCK_3D_SCENE, ROBO_DICT, BUFFER_SIZE)
 taskloader = TaskLoader()
 count = 0
 while True:
-    conn, addr = sock_serv.accept()
+    conn, addr = SOCK_SERV.accept()
     conn.setblocking(False)
     while True:
         try:
@@ -263,17 +92,17 @@ while True:
             messages = messages.split('|')
             for message in messages[:-1]:  # Skip last empty list.
                 if message == 'e':
-                    for robot in robo_dict:
+                    for robot in ROBO_DICT:
                         message = f'{robot}: e|'
                         try:
                             print('Send exit message to robots:', message)
-                            sock_rob_ad.send(message.encode())
+                            SOCK_ROB_AD.send(message.encode())
                             time.sleep(1)
                         except ConnectionAbortedError:
                             logging.error('RCA aborted connection')
                     try:
                         print('Send exit message to RCA:', message)
-                        sock_rob_ad.send(b'e|')
+                        SOCK_ROB_AD.send(b'e|')
                     except ConnectionAbortedError:
                         logging.error('RCA aborted connection')
                     logging.info('Planner stopped')
@@ -281,7 +110,7 @@ while True:
                 try:
                     print(message)
                     data = json.loads(message)
-                    process_complex_task(data, taskloader)
+                    planner.process_complex_task(data, taskloader)
                 except ConnectionAbortedError:
                     # logging.error('RCA aborted connection')
                     pass

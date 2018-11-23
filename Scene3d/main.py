@@ -19,22 +19,22 @@ config_file = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     'configBL.ini'
 )
-config = configparser.ConfigParser()
-config.read(config_file)
-host = config['HOSTS']['Main_host']
-port_3d_scene = int(config['PORTS']['Port_3d_scene'])
-buffer_size = int(config['PARAMS']['Buffersize'])
+CONFIG = configparser.ConfigParser()
+CONFIG.read(config_file)
+HOST = CONFIG['HOSTS']['Main_host']
+PORT_3D_SCENE = int(CONFIG['PORTS']['Port_3d_scene'])
+BUFFER_SIZE = int(CONFIG['PARAMS']['Buffersize'])
 # config end
 
-sock_main = socket.socket()
-sock_main.bind((host, port_3d_scene))
-sock_main.listen(3)
+SOCK_MAIN = socket.socket()
+SOCK_MAIN.bind((HOST, PORT_3D_SCENE))
+SOCK_MAIN.listen(3)
 
 
 while True:
-    client, address = sock_main.accept()
+    client, address = SOCK_MAIN.accept()
     logging.info(f'Connect {address[0]}')
-    who_is_it = client.recv(buffer_size).decode()
+    who_is_it = client.recv(BUFFER_SIZE).decode()
 
     if who_is_it == 'planner':
         planer_thread = Thread(target=planner_func, args=(client, json_data))

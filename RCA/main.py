@@ -16,33 +16,33 @@ logging.basicConfig(
 logging.info('Program started')
 
 # config
-config_file = os.path.join(
+CONFIG_FILE = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
     'configBL.ini'
 )
-config = configparser.ConfigParser()
-config.read(config_file)
+CONFIG = configparser.ConfigParser()
+CONFIG.read(CONFIG_FILE)
 
-host = config['HOSTS']['Main_host']
-buffer_size = int(config['PARAMS']['Buffersize'])
-listen = int(config['PARAMS']['listen'])
-port_3d_scene = int(config['PORTS']['Port_3d_scene'])
-port_rca = int(config['PORTS']['Port_rca'])
+HOST = CONFIG['HOSTS']['Main_host']
+BUFFER_SIZE = int(CONFIG['PARAMS']['Buffersize'])
+LISTEN = int(CONFIG['PARAMS']['listen'])
+PORT_3D_SCENE = int(CONFIG['PORTS']['Port_3d_scene'])
+PORT_RCA = int(CONFIG['PORTS']['Port_rca'])
 # config end
 
-switch = Switch((host, port_3d_scene))
-switch.run()
-serv_sock = socket.socket()
-serv_sock.setblocking(False)
-serv_sock.bind((host, port_rca))
-serv_sock.listen(listen)
+SWITCH = Switch((HOST, PORT_3D_SCENE))
+SWITCH.run()
+SERV_SOCK = socket.socket()
+SERV_SOCK.setblocking(False)
+SERV_SOCK.bind((HOST, PORT_RCA))
+SERV_SOCK.listen(LISTEN)
 
-while not switch.exit:
+while not SWITCH.exit:
     try:
-        conn, address = serv_sock.accept()
+        conn, address = SERV_SOCK.accept()
         common_conn = CommonSocket(conn, False, False)
         common_conn.start()
-        switch.append(common_conn)
-        print('Received connection, status:', switch.exit)
+        SWITCH.append(common_conn)
+        print('Received connection, status:', SWITCH.exit)
     except Exception:
         pass
