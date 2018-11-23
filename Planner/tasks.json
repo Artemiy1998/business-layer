@@ -15,7 +15,7 @@
         "name": "f",
         "time": 8,
         "energy": 0,
-        "command": "m -906 -462 404 -180 0 177 0"
+        "command": "m -906 -462 404 -180 0 0 0"
       },
       {
         "parallel": false,
@@ -77,7 +77,7 @@
         "name": "f",
         "time": 8,
         "energy": 0,
-        "command": "m -906 -462 404 -180 0 177 0"
+        "command": "m -906 -462 404 -180 0 0 0"
       },
       {
         "parallel": false,
@@ -139,7 +139,7 @@
         "name": "f",
         "time": 8,
         "energy": 0,
-        "command": "m -906 -462 404 -180 0 177 0"
+        "command": "m -906 -462 404 -180 0 0 0"
       },
       {
         "parallel": false,
