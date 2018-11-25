@@ -62,19 +62,30 @@ class Planner:
             return command[parameter_begin:parameter_end + 1]
         return None
 
-    def get_data_and_replace_parameter(self, command, receiver, parameter):
+    def get_parameter_from_scene3d(parameter):
         self.sock_scene3d.send(f'get {parameter}'.encode())
-        data_from_3d_scene = self.sock_scene3d.recv(self.BUFFER_SIZE).decode()
+        data_from_scene_3d = self.sock_scene3d.recv(self.BUFFER_SIZE).decode()
+        return data_from_scene_3d
 
-        if data_from_3d_scene == 'None':
+    def get_data_and_replace_parameter(self, command, receiver, parameter):
+        # Try to get object from scene 3d at first time.
+        data_from_scene_3d = get_parameter_from_scene3d(parameter)
+
+        if data_from_scene_3d == 'None':
+            # Callng sensors several times.
             if not self.try_get_data_from_sensors(receiver, parameter):
                 return None
+            # After callng sensors try to get object again. 
+            data_from_scene_3d = get_parameter_from_scene3d(parameter)
+            if data_from_scene_3d == 'None':
+                raise ValueError(f'Did not find parameter in scene 3d: '
+                                 f'{parameter}.')
 
-        new_command = command.replace(parameter, data_from_3d_scene)
+        new_command = command.replace(parameter, data_from_scene_3d)
 
-        return self.add_offset(new_command, data_from_3d_scene)
+        return self.add_offset(new_command, data_from_scene_3d)
 
-    def add_offset(self, command, data_from_3d_scene,
+    def add_offset(self, command, data_from_scene_3d,
                    concat_symbol=CONCAT_SYMBOL,
                    separated_symbol=SEPARATED_SYMBOL, command_offset=None):
         # Find symbol for command with offset.
@@ -91,7 +102,7 @@ class Planner:
         # Skip space symbols: con_pos + 2 and sep_pos - 1.
         data_to_add = command[con_pos + 2:sep_pos - 1]
         coords = [str(float(x) + float(y)) for x, y in zip(
-            data_from_3d_scene.split(' '), data_to_add.split(' ')
+            data_from_scene_3d.split(' '), data_to_add.split(' ')
         )]
         if command_offset is None:
             # Get command literal (because it place in the beginning)
