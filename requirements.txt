@@ -1,0 +1,7 @@
+greenlet==0.4.15
+lxml==4.2.5
+meinheld==0.6.1
+PySimpleSOAP==1.16.2
+pytz==2018.7
+spyne==2.12.14
+xmltodict==0.11.0
