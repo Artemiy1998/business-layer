@@ -10,15 +10,16 @@ class Scene3Ddata:
 
     # @synchronized
     def add(self, data):
-        temp_data = data.split(', ')
+        temp_data = data.split(',')
         for item in temp_data:
-            json_like_str = f'{{ {item} }}'
-            print('Format json:', json_like_str)
-            try:
-                temp_json = json.loads(json_like_str)
-                self.data.update(temp_json)
-            except ValueError as e:
-                print('Exception during parsing json:', e)
+            if item:
+                json_like_str = f'{{ {item} }}'
+                print('Format json:', json_like_str)
+                try:
+                    temp_json = json.loads(json_like_str)
+                    self.data.update(temp_json)
+                except ValueError as e:
+                    print('Exception during parsing json:', e)
 
     # @synchronized
     def get(self):

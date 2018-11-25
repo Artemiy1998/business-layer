@@ -23,6 +23,8 @@ class TaskLoader:
         :return: int, float, str, dict, list, bool, None.
             Task with all parameters from file.
         """
+        with open(self._filename, 'r', encoding='utf-8') as infile:
+            self._parsed_json_tasks = json.loads(infile.read())
         return self._parsed_json_tasks[item]
 
     def is_exist(self, task):

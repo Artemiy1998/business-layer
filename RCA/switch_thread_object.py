@@ -70,7 +70,7 @@ class Switch:
                         messages = messages.split('|')
                         for message in messages:
                             if message and sock_name != 'p':
-                                message = message[:-2]+'"'
+                                message = message[:-2] + '",'
                             logging.debug(f'{sock_name} message: {message}')
                             if message:
                                 self.scene_3d_sock.send(message.encode())

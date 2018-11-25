@@ -8,7 +8,7 @@ class Planner:
     SPECIAL_SYMBOL = '$'
     CONCAT_SYMBOL = '+'
     SEPARATED_SYMBOL = '!'
-    EPS = 20
+    EPS = 50
 
     def __init__(self, sock_rob_ad, sock_scene3d, robo_dict, buffer_size):
         self.ROBO_DICT = robo_dict
@@ -38,7 +38,7 @@ class Planner:
         return object_name in data_from_scene3d
 
     def try_get_data_from_sensors(self, receiver, object_name, checks_number=3,
-                                  time_delay=5):
+                                  time_delay=7):
         print('Try to found', object_name, 'in', receiver)
 
         for _ in range(checks_number):
@@ -158,7 +158,7 @@ class Planner:
         return False
 
     def check_execution_with_delay(self, sent_command, receiver,
-                                   checks_number=3, time_delay=1):
+                                   checks_number=3, time_delay=3):
         # Check command execution with some delays.
         if 'm' in sent_command:
             is_executed = False
