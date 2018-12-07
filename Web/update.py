@@ -1,7 +1,7 @@
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
-from spyne import Application, rpc, ServiceBase, Integer, Float, Unicode, Array, Iterable, ComplexModel, XmlAttribute
+from spyne import Application, rpc, ServiceBase, Float, Unicode, Array, Iterable, ComplexModel, XmlAttribute
 from spyne.protocol.soap import Soap11
 from spyne.server.wsgi import WsgiApplication
 import socket
@@ -60,10 +60,12 @@ class Schedule(ComplexModel):
 class HelloWorldService(ServiceBase):
     @rpc(Schedule, _returns=Iterable(Unicode))
     def set_scenario(ctx, schedule):
+        print(schedule)
         for process in schedule.processes:
+
             answer = {
-                    "flag":0,
-                    "name":None,
+                "flag": "0",
+                "name": "",
                     "Scenario": [
                         {
                             "parallel": "false",
@@ -76,6 +78,7 @@ class HelloWorldService(ServiceBase):
                     ]
                 }
             json_data = json.dumps(answer)
+            print(json_data)
             sock.send(json_data.encode())
         return dict(status="ok")
 
@@ -90,5 +93,5 @@ if __name__ == '__main__':
     from wsgiref.simple_server import make_server
 
     wsgi_app = WsgiApplication(application)
-    server = make_server('0.0.0.0', 8000, wsgi_app)
+    server = make_server('0.0.0.0', 3331, wsgi_app)
     server.serve_forever()
